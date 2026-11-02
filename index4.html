@@ -1,0 +1,3057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Wolf, Goat & Cabbage Puzzle</title>
+
+<style>
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eaf7ff,
+            #d5edf7
+        );
+
+    color: #263746;
+
+    user-select: none;
+}
+
+.container {
+    width: 94%;
+    max-width: 1200px;
+
+    margin: auto;
+
+    padding: 18px 0 40px;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+header {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+header h1 {
+    margin: 0;
+
+    color: #174b69;
+
+    font-size: 2.2rem;
+}
+
+header p {
+    margin-top: 7px;
+
+    color: #607d8b;
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.controls {
+    display: flex;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin: 15px 0;
+}
+
+button {
+    border: none;
+
+    padding: 11px 18px;
+
+    border-radius: 8px;
+
+    color: white;
+
+    font-size: .95rem;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+        transform .18s,
+        filter .18s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+
+    filter: brightness(1.08);
+}
+
+button:disabled {
+    cursor: not-allowed;
+
+    transform: none;
+
+    filter: none;
+}
+
+.reset-btn {
+    background: #34495e;
+}
+
+.hint-btn {
+    background: #f39c12;
+}
+
+.solution-btn {
+    background: #8e44ad;
+}
+
+.cross-btn {
+    background: #2196f3;
+
+    padding: 13px 27px;
+
+    font-size: 1rem;
+}
+
+.cross-btn:disabled {
+    background: #9aa8b0;
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.stats {
+    display: flex;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin: 14px 0;
+}
+
+.stat {
+    min-width: 160px;
+
+    background: white;
+
+    padding: 11px 20px;
+
+    border-radius: 10px;
+
+    text-align: center;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 5px 18px rgba(0,0,0,.08);
+}
+
+.stat span {
+    display: block;
+
+    margin-top: 4px;
+
+    color: #1673a5;
+
+    font-size: 1.08rem;
+}
+
+
+/* =========================================================
+   INSTRUCTIONS
+========================================================= */
+
+.instructions {
+    background: white;
+
+    padding: 16px 20px;
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 6px 20px rgba(0,0,0,.07);
+
+    margin-bottom: 15px;
+}
+
+.instructions h2 {
+    margin: 0 0 8px;
+
+    color: #176087;
+}
+
+.instructions p {
+    color: #5f707a;
+
+    line-height: 1.5;
+
+    margin: 6px 0;
+}
+
+.rules {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-top: 10px;
+}
+
+.rule {
+    background: #f2f8fb;
+
+    padding: 9px 12px;
+
+    border-radius: 8px;
+
+    font-size: .86rem;
+}
+
+.goal {
+    margin-top: 10px;
+
+    padding: 11px 14px;
+
+    background: #eef8ff;
+
+    border-left:
+        5px solid #2196f3;
+
+    border-radius: 7px;
+
+    color: #176087;
+
+    font-weight: bold;
+}
+
+
+/* =========================================================
+   GAME BOARD
+========================================================= */
+
+.game-board {
+    background: white;
+
+    padding: 12px;
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.1);
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   GAME WORLD
+========================================================= */
+
+.sky {
+    position: relative;
+
+    width: 100%;
+
+    height: 470px;
+
+    overflow: hidden;
+
+    border-radius: 15px;
+
+    background:
+        linear-gradient(
+            to bottom,
+            #9edfff,
+            #d9f4ff
+        );
+}
+
+
+/* =========================================================
+   CLOUDS
+========================================================= */
+
+.cloud {
+    position: absolute;
+
+    width: 105px;
+    height: 34px;
+
+    background:
+        rgba(255,255,255,.78);
+
+    border-radius: 40px;
+
+    z-index: 1;
+}
+
+.cloud::before,
+.cloud::after {
+    content: "";
+
+    position: absolute;
+
+    background:
+        rgba(255,255,255,.78);
+
+    border-radius: 50%;
+}
+
+.cloud::before {
+    width: 45px;
+    height: 45px;
+
+    left: 18px;
+    top: -22px;
+}
+
+.cloud::after {
+    width: 52px;
+    height: 52px;
+
+    right: 8px;
+    top: -26px;
+}
+
+.cloud.one {
+    left: 8%;
+    top: 38px;
+}
+
+.cloud.two {
+    right: 10%;
+    top: 75px;
+
+    transform: scale(.75);
+}
+
+
+/* =========================================================
+   RIVER
+========================================================= */
+
+.river {
+    position: absolute;
+
+    top: 0;
+    bottom: 0;
+
+    left: 25%;
+    right: 25%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #35bce7,
+            #168fd0,
+            #2db5e4,
+            #168dcd
+        );
+
+    z-index: 2;
+
+    overflow: hidden;
+
+    border-left:
+        5px solid rgba(255,255,255,.2);
+
+    border-right:
+        5px solid rgba(255,255,255,.2);
+}
+
+.river::before {
+    content: "";
+
+    position: absolute;
+
+    left: -100px;
+    top: 0;
+
+    width: 160%;
+    height: 100%;
+
+    background:
+        repeating-linear-gradient(
+            -25deg,
+            transparent 0,
+            transparent 28px,
+            rgba(255,255,255,.18) 29px,
+            rgba(255,255,255,.18) 32px,
+            transparent 33px,
+            transparent 65px
+        );
+
+    animation:
+        waterMove 5s linear infinite;
+}
+
+@keyframes waterMove {
+
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(80px);
+    }
+
+}
+
+
+/* =========================================================
+   BANKS
+========================================================= */
+
+.bank {
+    position: absolute;
+
+    top: 0;
+    bottom: 0;
+
+    width: 25%;
+
+    padding: 20px;
+
+    background:
+        linear-gradient(
+            to bottom,
+            #76ca69,
+            #52af57
+        );
+
+    z-index: 3;
+}
+
+.left-bank {
+    left: 0;
+}
+
+.right-bank {
+    right: 0;
+}
+
+.bank-title {
+    text-align: center;
+
+    color: white;
+
+    font-size: 1.15rem;
+
+    font-weight: bold;
+
+    text-shadow:
+        0 1px 3px rgba(0,0,0,.3);
+}
+
+
+/* =========================================================
+   BANK DROP ZONES
+========================================================= */
+
+.bank-items {
+    position: absolute;
+
+    top: 65px;
+    left: 10px;
+    right: 10px;
+    bottom: 18px;
+
+    border:
+        2px dashed
+        rgba(255,255,255,.55);
+
+    border-radius: 15px;
+
+    padding: 10px;
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-content: flex-start;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    transition:
+        background .2s,
+        border .2s;
+}
+
+.bank-items.drop-target {
+    background:
+        rgba(255,255,255,.22);
+
+    border:
+        3px dashed white;
+}
+
+
+/* =========================================================
+   ITEMS
+========================================================= */
+
+.item {
+    width: 82px;
+    height: 82px;
+
+    flex-shrink: 0;
+
+    background:
+        rgba(255,255,255,.97);
+
+    border-radius: 17px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 2.5rem;
+
+    cursor: grab;
+
+    position: relative;
+
+    z-index: 100;
+
+    box-shadow:
+        0 6px 14px rgba(0,0,0,.18);
+
+    transition:
+        transform .18s,
+        box-shadow .18s;
+
+    touch-action: none;
+}
+
+.item span {
+    margin-top: 2px;
+
+    font-size: .65rem;
+
+    color: #455a64;
+
+    font-weight: bold;
+}
+
+.item:hover {
+    transform:
+        translateY(-4px)
+        scale(1.03);
+
+    box-shadow:
+        0 10px 20px rgba(0,0,0,.22);
+}
+
+.item:active {
+    cursor: grabbing;
+}
+
+
+/* =========================================================
+   BOAT
+========================================================= */
+
+.boat {
+    position: absolute;
+
+    /*
+       Boat is INSIDE the river.
+       River starts at 25%.
+
+       Boat positions:
+       left water side  = 35%
+       right water side = 65%
+    */
+
+    left: 35%;
+
+    bottom: 35px;
+
+    width: 210px;
+
+    height: 145px;
+
+    transform: translateX(-50%);
+
+    transition:
+        left 1.2s cubic-bezier(.2,.8,.2,1);
+
+    z-index: 50;
+
+    pointer-events: auto;
+}
+
+
+/* =========================================================
+   WHOLE BOAT DROP AREA
+
+   Entire boat is clickable/drop target.
+========================================================= */
+
+.boat-drop-area {
+    position: absolute;
+
+    inset: 0;
+
+    border-radius:
+        20px 20px 75px 75px;
+
+    z-index: 60;
+
+    pointer-events: auto;
+
+    transition:
+        background .2s,
+        outline .2s;
+}
+
+.boat-drop-area.drop-target {
+    background:
+        rgba(255,255,255,.18);
+
+    outline:
+        3px dashed white;
+}
+
+
+/* =========================================================
+   BOAT BODY
+========================================================= */
+
+.boat-body {
+    position: absolute;
+
+    left: 4px;
+    right: 4px;
+
+    bottom: 0;
+
+    height: 78px;
+
+    background:
+        linear-gradient(
+            to bottom,
+            #c9793e,
+            #773916
+        );
+
+    border:
+        4px solid #5a2c16;
+
+    border-radius:
+        12px 12px 80px 80px;
+
+    box-shadow:
+        0 10px 17px rgba(0,0,0,.3);
+
+    z-index: 20;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   BOAT RIM
+========================================================= */
+
+.boat-top {
+    position: absolute;
+
+    left: 12px;
+    right: 12px;
+
+    bottom: 55px;
+
+    height: 31px;
+
+    background:
+        #d8894a;
+
+    border:
+        4px solid #713714;
+
+    border-radius: 50%;
+
+    z-index: 25;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   BOAT CONTENTS
+========================================================= */
+
+.boat-contents {
+    position: absolute;
+
+    left: 25px;
+    right: 25px;
+
+    bottom: 52px;
+
+    height: 82px;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    z-index: 70;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   FARMER
+========================================================= */
+
+.farmer {
+    width: 72px;
+    height: 78px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 3rem;
+
+    z-index: 75;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   BOAT PASSENGER
+========================================================= */
+
+.boat-items {
+    width: 78px;
+    height: 78px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    pointer-events: auto;
+
+    z-index: 80;
+
+    border-radius: 15px;
+}
+
+.boat-items .item {
+    width: 72px;
+    height: 72px;
+
+    font-size: 2rem;
+}
+
+
+/* =========================================================
+   BOAT LABEL
+========================================================= */
+
+.boat-status {
+    position: absolute;
+
+    left: 50%;
+
+    bottom: 8px;
+
+    transform:
+        translateX(-50%);
+
+    color: white;
+
+    background:
+        rgba(0,0,0,.5);
+
+    padding:
+        5px 12px;
+
+    border-radius: 20px;
+
+    font-size: .68rem;
+
+    white-space: nowrap;
+
+    z-index: 90;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   BOAT WAKE
+========================================================= */
+
+.boat::after {
+    content: "";
+
+    position: absolute;
+
+    left: -20px;
+    right: -20px;
+
+    bottom: -5px;
+
+    height: 14px;
+
+    background:
+        rgba(255,255,255,.28);
+
+    border-radius: 50%;
+
+    filter: blur(3px);
+
+    z-index: 5;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   CROSS BUTTON
+========================================================= */
+
+.cross-area {
+    text-align: center;
+
+    margin-top: 17px;
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+.message {
+    display: none;
+
+    margin-top: 16px;
+
+    padding: 15px;
+
+    border-radius: 10px;
+
+    text-align: center;
+
+    line-height: 1.5;
+}
+
+.message.info {
+    display: block;
+
+    background: #edf7ff;
+
+    border:
+        2px solid #2196f3;
+
+    color: #176087;
+}
+
+.message.error {
+    display: block;
+
+    background: #fdedec;
+
+    border:
+        2px solid #e74c3c;
+
+    color: #922b21;
+}
+
+.message.success {
+    display: block;
+
+    background: #eafaf1;
+
+    border:
+        2px solid #27ae60;
+
+    color: #196f3d;
+}
+
+
+/* =========================================================
+   HINT
+========================================================= */
+
+#hintBox {
+    display: none;
+
+    margin-top: 15px;
+
+    padding: 15px;
+
+    background: #fff8e7;
+
+    border-left:
+        5px solid #f39c12;
+
+    border-radius: 8px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   SOLUTION
+========================================================= */
+
+#solutionBox {
+    display: none;
+
+    margin-top: 16px;
+
+    background: white;
+
+    padding: 18px;
+
+    border-radius: 13px;
+
+    box-shadow:
+        0 5px 18px rgba(0,0,0,.07);
+}
+
+.solution-step {
+    background: #f4f8fa;
+
+    padding: 11px 14px;
+
+    margin: 8px 0;
+
+    border-radius: 8px;
+}
+
+
+/* =========================================================
+   WIN
+========================================================= */
+
+.win-board {
+    animation:
+        winPulse .8s ease-in-out 3;
+}
+
+@keyframes winPulse {
+
+    0%,100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.015);
+    }
+
+}
+
+
+/* =========================================================
+   CONFETTI
+========================================================= */
+
+.confetti {
+    position: fixed;
+
+    top: -20px;
+
+    width: 9px;
+    height: 15px;
+
+    z-index: 99999;
+
+    animation:
+        confettiFall 2.8s linear forwards;
+}
+
+@keyframes confettiFall {
+
+    to {
+
+        transform:
+            translateY(110vh)
+            rotate(720deg);
+
+        opacity: 0;
+
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:800px) {
+
+    .sky {
+        height: 520px;
+    }
+
+    header h1 {
+        font-size: 1.65rem;
+    }
+
+    .bank {
+        width: 22%;
+        padding: 8px;
+    }
+
+    .river {
+        left: 22%;
+        right: 22%;
+    }
+
+    .item {
+        width: 60px;
+        height: 60px;
+
+        font-size: 1.8rem;
+    }
+
+    .item span {
+        font-size: .5rem;
+    }
+
+    .boat {
+        width: 175px;
+        height: 130px;
+    }
+
+    .farmer {
+        width: 58px;
+        font-size: 2.3rem;
+    }
+
+    .boat-items {
+        width: 65px;
+        height: 65px;
+    }
+
+    .boat-items .item {
+        width: 60px;
+        height: 60px;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header>
+
+    <h1>
+        🐺 🐐 🥬 Wolf, Goat & Cabbage
+    </h1>
+
+    <p>
+        Get all three safely across the river!
+    </p>
+
+</header>
+
+
+<!-- =====================================================
+     INSTRUCTIONS
+===================================================== -->
+
+<div class="instructions">
+
+    <h2>
+        🧠 Your Challenge
+    </h2>
+
+    <p>
+        A farmer must take a
+        <strong>wolf 🐺</strong>,
+        <strong>goat 🐐</strong>,
+        and
+        <strong>cabbage 🥬</strong>
+        across the river.
+    </p>
+
+    <div class="rules">
+
+        <div class="rule">
+            🐺 ❌ 🐐
+            <br>
+            Wolf cannot stay with Goat.
+        </div>
+
+        <div class="rule">
+            🐐 ❌ 🥬
+            <br>
+            Goat cannot stay with Cabbage.
+        </div>
+
+        <div class="rule">
+            🚣
+            <br>
+            Boat carries Farmer + 1 item.
+        </div>
+
+    </div>
+
+    <div class="goal">
+
+        🎯 Move everything safely
+        to the RIGHT BANK.
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     BUTTONS
+===================================================== -->
+
+<div class="controls">
+
+    <button
+        class="reset-btn"
+        onclick="resetGame()">
+
+        🔄 Reset
+
+    </button>
+
+    <button
+        class="hint-btn"
+        onclick="showHint()">
+
+        💡 Hint
+
+    </button>
+
+    <button
+        class="solution-btn"
+        onclick="showSolution()">
+
+        🧠 Solution
+
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+     STATS
+===================================================== -->
+
+<div class="stats">
+
+    <div class="stat">
+
+        🔢 Crossings
+
+        <span id="moveCount">
+            0
+        </span>
+
+    </div>
+
+    <div class="stat">
+
+        👨‍🌾 Farmer
+
+        <span id="farmerPosition">
+            Left Bank
+        </span>
+
+    </div>
+
+    <div class="stat">
+
+        🚣 Boat
+
+        <span id="boatPosition">
+            Left Bank
+        </span>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     GAME BOARD
+===================================================== -->
+
+<div
+    class="game-board"
+    id="gameBoard">
+
+
+    <div class="sky">
+
+
+        <!-- CLOUDS -->
+
+        <div class="cloud one"></div>
+
+        <div class="cloud two"></div>
+
+
+        <!-- =================================================
+             RIVER
+        ================================================== -->
+
+        <div class="river"></div>
+
+
+        <!-- =================================================
+             LEFT BANK
+        ================================================== -->
+
+        <div
+            class="bank left-bank">
+
+            <div class="bank-title">
+
+                🏡 LEFT BANK
+
+            </div>
+
+            <div
+                class="bank-items"
+                id="leftItems">
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             RIGHT BANK
+        ================================================== -->
+
+        <div
+            class="bank right-bank">
+
+            <div class="bank-title">
+
+                🏡 RIGHT BANK
+
+            </div>
+
+            <div
+                class="bank-items"
+                id="rightItems">
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             BOAT
+        ================================================== -->
+
+        <div
+            class="boat"
+            id="boat">
+
+
+            <!-- WHOLE BOAT DROP TARGET -->
+
+            <div
+                class="boat-drop-area"
+                id="boatDropArea">
+            </div>
+
+
+            <!-- BOAT BODY -->
+
+            <div
+                class="boat-body">
+            </div>
+
+
+            <!-- BOAT TOP -->
+
+            <div
+                class="boat-top">
+            </div>
+
+
+            <!-- FARMER + PASSENGER -->
+
+            <div
+                class="boat-contents">
+
+
+                <div
+                    class="farmer">
+
+                    👨‍🌾
+
+                </div>
+
+
+                <div
+                    class="boat-items"
+                    id="boatItems">
+
+                </div>
+
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div
+                class="boat-status"
+                id="boatStatus">
+
+                Boat is on left bank
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CROSS BUTTON
+    ===================================================== -->
+
+    <div class="cross-area">
+
+        <button
+            class="cross-btn"
+            id="crossBtn"
+            onclick="crossRiver()">
+
+            🚣 Cross River
+
+        </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         MESSAGE
+    ===================================================== -->
+
+    <div
+        class="message"
+        id="message">
+
+    </div>
+
+
+    <!-- =====================================================
+         HINT
+    ===================================================== -->
+
+    <div
+        id="hintBox">
+
+    </div>
+
+
+    <!-- =====================================================
+         SOLUTION
+    ===================================================== -->
+
+    <div
+        id="solutionBox">
+
+        <h2>
+            🧠 Solution
+        </h2>
+
+
+        <div class="solution-step">
+
+            <strong>
+                1️⃣ Take Goat →
+            </strong>
+
+            <br><br>
+
+            🐐 Take the goat to
+            the right bank.
+
+        </div>
+
+
+        <div class="solution-step">
+
+            <strong>
+                2️⃣ Return Alone ←
+            </strong>
+
+            <br><br>
+
+            👨‍🌾 Farmer returns alone.
+
+        </div>
+
+
+        <div class="solution-step">
+
+            <strong>
+                3️⃣ Take Wolf →
+            </strong>
+
+            <br><br>
+
+            🐺 Take the wolf across.
+
+        </div>
+
+
+        <div class="solution-step">
+
+            <strong>
+                4️⃣ Bring Goat Back ←
+            </strong>
+
+            <br><br>
+
+            🐐 Bring the goat back.
+
+        </div>
+
+
+        <div class="solution-step">
+
+            <strong>
+                5️⃣ Take Cabbage →
+            </strong>
+
+            <br><br>
+
+            🥬 Take the cabbage across.
+
+        </div>
+
+
+        <div class="solution-step">
+
+            <strong>
+                6️⃣ Return Alone ←
+            </strong>
+
+            <br><br>
+
+            👨‍🌾 Farmer returns alone.
+
+        </div>
+
+
+        <div class="solution-step">
+
+            <strong>
+                7️⃣ Take Goat →
+            </strong>
+
+            <br><br>
+
+            🐐 Take the goat across.
+
+        </div>
+
+
+        <div class="goal">
+
+            🎉 Everyone is safely
+            on the right bank!
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   GAME STATE
+========================================================= */
+
+let state = {
+
+    farmerSide: "left",
+
+    boatSide: "left",
+
+    moves: 0,
+
+    gameWon: false,
+
+    crossing: false
+
+};
+
+
+/* =========================================================
+   ITEM DATA
+========================================================= */
+
+const itemData = {
+
+    wolf: {
+        emoji: "🐺",
+        name: "Wolf"
+    },
+
+    goat: {
+        emoji: "🐐",
+        name: "Goat"
+    },
+
+    cabbage: {
+        emoji: "🥬",
+        name: "Cabbage"
+    }
+
+};
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const leftItems =
+    document.getElementById("leftItems");
+
+const rightItems =
+    document.getElementById("rightItems");
+
+const boatItems =
+    document.getElementById("boatItems");
+
+const boat =
+    document.getElementById("boat");
+
+const boatDropArea =
+    document.getElementById("boatDropArea");
+
+const crossBtn =
+    document.getElementById("crossBtn");
+
+const message =
+    document.getElementById("message");
+
+const moveCount =
+    document.getElementById("moveCount");
+
+const farmerPosition =
+    document.getElementById("farmerPosition");
+
+const boatPosition =
+    document.getElementById("boatPosition");
+
+const boatStatus =
+    document.getElementById("boatStatus");
+
+
+/* =========================================================
+   CREATE ITEM
+========================================================= */
+
+function createItem(type) {
+
+    const item =
+        document.createElement("div");
+
+    item.className =
+        "item";
+
+    item.dataset.type =
+        type;
+
+    item.innerHTML = `
+        ${itemData[type].emoji}
+        <span>
+            ${itemData[type].name}
+        </span>
+    `;
+
+    item.addEventListener(
+        "pointerdown",
+        startDragging
+    );
+
+    return item;
+
+}
+
+
+/* =========================================================
+   RESET GAME
+========================================================= */
+
+function resetGame() {
+
+    state = {
+
+        farmerSide: "left",
+
+        boatSide: "left",
+
+        moves: 0,
+
+        gameWon: false,
+
+        crossing: false
+
+    };
+
+
+    leftItems.innerHTML =
+        "";
+
+    rightItems.innerHTML =
+        "";
+
+    boatItems.innerHTML =
+        "";
+
+
+    leftItems.appendChild(
+        createItem("wolf")
+    );
+
+    leftItems.appendChild(
+        createItem("goat")
+    );
+
+    leftItems.appendChild(
+        createItem("cabbage")
+    );
+
+
+    document.getElementById(
+        "hintBox"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "solutionBox"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "gameBoard"
+    ).classList.remove(
+        "win-board"
+    );
+
+
+    hideMessage();
+
+    hintLevel = 0;
+
+    updateUI();
+
+}
+
+
+/* =========================================================
+   UPDATE UI
+========================================================= */
+
+function updateUI() {
+
+    moveCount.innerText =
+        state.moves;
+
+    farmerPosition.innerText =
+        state.farmerSide === "left"
+            ? "Left Bank"
+            : "Right Bank";
+
+    boatPosition.innerText =
+        state.boatSide === "left"
+            ? "Left Bank"
+            : "Right Bank";
+
+    boatStatus.innerText =
+        state.boatSide === "left"
+            ? "Boat is on left side"
+            : "Boat is on right side";
+
+
+    /*
+       IMPORTANT:
+
+       Boat remains INSIDE the river.
+
+       The river occupies:
+
+       25% → 75%
+
+       Boat positions:
+
+       35% → left side of water
+       65% → right side of water
+    */
+
+    boat.style.left =
+        state.boatSide === "left"
+            ? "35%"
+            : "65%";
+
+
+    crossBtn.disabled =
+        state.gameWon ||
+        state.crossing;
+
+}
+
+
+/* =========================================================
+   FIND ITEM LOCATION
+========================================================= */
+
+function getItemLocation(type) {
+
+    const item =
+        document.querySelector(
+            `.item[data-type="${type}"]`
+        );
+
+    if (!item) {
+
+        return null;
+
+    }
+
+
+    if (
+        item.parentElement ===
+        leftItems
+    ) {
+
+        return "left";
+
+    }
+
+
+    if (
+        item.parentElement ===
+        rightItems
+    ) {
+
+        return "right";
+
+    }
+
+
+    if (
+        item.parentElement ===
+        boatItems
+    ) {
+
+        return "boat";
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =========================================================
+   DRAGGING VARIABLES
+========================================================= */
+
+let draggedItem =
+    null;
+
+let ghost =
+    null;
+
+let originalParent =
+    null;
+
+let pointerOffsetX =
+    0;
+
+let pointerOffsetY =
+    0;
+
+
+/* =========================================================
+   START DRAG
+========================================================= */
+
+function startDragging(e) {
+
+    if (
+        state.gameWon ||
+        state.crossing
+    ) {
+
+        return;
+
+    }
+
+
+    const item =
+        e.currentTarget;
+
+    const type =
+        item.dataset.type;
+
+    const location =
+        getItemLocation(type);
+
+
+    /*
+       Item must be on farmer's
+       current bank or already in boat.
+    */
+
+    if (
+
+        location !== "boat" &&
+        location !== state.farmerSide
+
+    ) {
+
+        showMessage(
+            "⚠️ The farmer is not on this bank.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    e.preventDefault();
+
+
+    draggedItem =
+        item;
+
+    originalParent =
+        item.parentElement;
+
+
+    const rect =
+        item.getBoundingClientRect();
+
+
+    pointerOffsetX =
+        e.clientX -
+        rect.left;
+
+
+    pointerOffsetY =
+        e.clientY -
+        rect.top;
+
+
+    ghost =
+        item.cloneNode(true);
+
+
+    ghost.style.position =
+        "fixed";
+
+    ghost.style.left =
+        (
+            e.clientX -
+            pointerOffsetX
+        ) + "px";
+
+    ghost.style.top =
+        (
+            e.clientY -
+            pointerOffsetY
+        ) + "px";
+
+    ghost.style.zIndex =
+        "99999";
+
+    ghost.style.pointerEvents =
+        "none";
+
+    ghost.style.transform =
+        "scale(1.08)";
+
+
+    document.body.appendChild(
+        ghost
+    );
+
+
+    item.style.opacity =
+        ".25";
+
+
+    document.addEventListener(
+        "pointermove",
+        dragMove
+    );
+
+    document.addEventListener(
+        "pointerup",
+        dragEnd,
+        { once: true }
+    );
+
+}
+
+
+/* =========================================================
+   DRAG MOVE
+========================================================= */
+
+function dragMove(e) {
+
+    if (!ghost) {
+
+        return;
+
+    }
+
+
+    ghost.style.left =
+        (
+            e.clientX -
+            pointerOffsetX
+        ) + "px";
+
+
+    ghost.style.top =
+        (
+            e.clientY -
+            pointerOffsetY
+        ) + "px";
+
+
+    highlightDropTarget(
+        e.clientX,
+        e.clientY
+    );
+
+}
+
+
+/* =========================================================
+   DROP TARGET
+========================================================= */
+
+function getDropTarget(x, y) {
+
+    /*
+       WHOLE BOAT
+
+       This is intentionally checked
+       before the bank areas.
+    */
+
+    const boatRect =
+        boat.getBoundingClientRect();
+
+
+    if (
+
+        x >= boatRect.left &&
+        x <= boatRect.right &&
+        y >= boatRect.top &&
+        y <= boatRect.bottom
+
+    ) {
+
+        return boatItems;
+
+    }
+
+
+    /*
+       LEFT BANK
+    */
+
+    const leftRect =
+        leftItems.getBoundingClientRect();
+
+
+    if (
+
+        x >= leftRect.left &&
+        x <= leftRect.right &&
+        y >= leftRect.top &&
+        y <= leftRect.bottom
+
+    ) {
+
+        return leftItems;
+
+    }
+
+
+    /*
+       RIGHT BANK
+    */
+
+    const rightRect =
+        rightItems.getBoundingClientRect();
+
+
+    if (
+
+        x >= rightRect.left &&
+        x <= rightRect.right &&
+        y >= rightRect.top &&
+        y <= rightRect.bottom
+
+    ) {
+
+        return rightItems;
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =========================================================
+   HIGHLIGHT DROP TARGET
+========================================================= */
+
+function highlightDropTarget(x, y) {
+
+    clearHighlights();
+
+
+    const target =
+        getDropTarget(
+            x,
+            y
+        );
+
+
+    if (!target) {
+
+        return;
+
+    }
+
+
+    if (
+        target === boatItems
+    ) {
+
+        boatDropArea.classList.add(
+            "drop-target"
+        );
+
+    } else {
+
+        target.classList.add(
+            "drop-target"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CLEAR HIGHLIGHTS
+========================================================= */
+
+function clearHighlights() {
+
+    document
+        .querySelectorAll(
+            ".drop-target"
+        )
+        .forEach(
+            element => {
+
+                element.classList.remove(
+                    "drop-target"
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   DRAG END
+========================================================= */
+
+function dragEnd(e) {
+
+    document.removeEventListener(
+        "pointermove",
+        dragMove
+    );
+
+
+    clearHighlights();
+
+
+    if (!draggedItem) {
+
+        return;
+
+    }
+
+
+    const item =
+        draggedItem;
+
+    const type =
+        item.dataset.type;
+
+
+    const target =
+        getDropTarget(
+            e.clientX,
+            e.clientY
+        );
+
+
+    if (ghost) {
+
+        ghost.remove();
+
+        ghost = null;
+
+    }
+
+
+    item.style.opacity =
+        "1";
+
+
+    /*
+       Invalid drop.
+    */
+
+    if (!target) {
+
+        draggedItem =
+            null;
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       DROP INTO BOAT
+    ===================================================== */
+
+    if (
+        target === boatItems
+    ) {
+
+        /*
+           Only one passenger.
+        */
+
+        if (
+
+            boatItems.children.length >= 1 &&
+            item.parentElement !== boatItems
+
+        ) {
+
+            showMessage(
+                "🚣 The boat can carry only one item.",
+                "error"
+            );
+
+            draggedItem =
+                null;
+
+            return;
+
+        }
+
+
+        /*
+           If coming from a bank,
+           must be farmer's current bank.
+        */
+
+        if (
+            item.parentElement !==
+            boatItems
+        ) {
+
+            const location =
+                getItemLocation(type);
+
+
+            if (
+                location !==
+                state.farmerSide
+            ) {
+
+                showMessage(
+                    "⚠️ The farmer cannot take an item from the opposite bank.",
+                    "error"
+                );
+
+                draggedItem =
+                    null;
+
+                return;
+
+            }
+
+        }
+
+
+        boatItems.appendChild(
+            item
+        );
+
+
+        showMessage(
+
+            `${itemData[type].emoji} ${itemData[type].name} is in the boat. Click "Cross River" to travel.`,
+
+            "info"
+
+        );
+
+
+        draggedItem =
+            null;
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       DROP INTO BANK
+    ===================================================== */
+
+    if (
+
+        target === leftItems ||
+        target === rightItems
+
+    ) {
+
+        const destination =
+            target === leftItems
+                ? "left"
+                : "right";
+
+
+        /*
+           Item coming from boat.
+        */
+
+        if (
+            item.parentElement ===
+            boatItems
+        ) {
+
+            if (
+                destination !==
+                state.boatSide
+            ) {
+
+                showMessage(
+                    "⚠️ The boat is on the opposite bank.",
+                    "error"
+                );
+
+                draggedItem =
+                    null;
+
+                return;
+
+            }
+
+
+            target.appendChild(
+                item
+            );
+
+
+            showMessage(
+
+                `${itemData[type].emoji} ${itemData[type].name} was unloaded.`,
+
+                "info"
+
+            );
+
+
+            draggedItem =
+                null;
+
+
+            checkAllSafety();
+
+            checkWin();
+
+            return;
+
+        }
+
+    }
+
+
+    draggedItem =
+        null;
+
+}
+
+
+/* =========================================================
+   SAFETY CHECK
+========================================================= */
+
+function checkBankSafety(side) {
+
+    /*
+       Farmer protects this bank.
+    */
+
+    if (
+        state.farmerSide === side
+    ) {
+
+        return true;
+
+    }
+
+
+    const wolf =
+        getItemLocation("wolf") === side;
+
+    const goat =
+        getItemLocation("goat") === side;
+
+    const cabbage =
+        getItemLocation("cabbage") === side;
+
+
+    /*
+       Wolf eats Goat.
+    */
+
+    if (
+        wolf &&
+        goat
+    ) {
+
+        loseGame(
+            "🐺 The wolf ate the goat!"
+        );
+
+        return false;
+
+    }
+
+
+    /*
+       Goat eats Cabbage.
+    */
+
+    if (
+        goat &&
+        cabbage
+    ) {
+
+        loseGame(
+            "🐐 The goat ate the cabbage!"
+        );
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+/* =========================================================
+   CHECK ALL SAFETY
+========================================================= */
+
+function checkAllSafety() {
+
+    if (
+        !checkBankSafety("left")
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        !checkBankSafety("right")
+    ) {
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+/* =========================================================
+   CROSS RIVER
+========================================================= */
+
+function crossRiver() {
+
+    if (
+        state.gameWon ||
+        state.crossing
+    ) {
+
+        return;
+
+    }
+
+
+    /*
+       Farmer and boat must
+       always be together.
+    */
+
+    if (
+        state.farmerSide !==
+        state.boatSide
+    ) {
+
+        showMessage(
+            "⚠️ Farmer and boat are not together.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Check safety before crossing.
+    */
+
+    if (
+        !checkAllSafety()
+    ) {
+
+        return;
+
+    }
+
+
+    const passenger =
+        boatItems.firstElementChild;
+
+
+    const passengerType =
+        passenger
+            ? passenger.dataset.type
+            : null;
+
+
+    const oldSide =
+        state.farmerSide;
+
+
+    const newSide =
+        oldSide === "left"
+            ? "right"
+            : "left";
+
+
+    state.crossing =
+        true;
+
+
+    crossBtn.disabled =
+        true;
+
+
+    showMessage(
+        "🚣 Boat is crossing the river...",
+        "info"
+    );
+
+
+    /*
+       Update boat and farmer side.
+    */
+
+    state.boatSide =
+        newSide;
+
+    state.farmerSide =
+        newSide;
+
+    state.moves++;
+
+
+    updateUI();
+
+
+    /*
+       Wait for boat animation.
+    */
+
+    setTimeout(
+        function() {
+
+            state.crossing =
+                false;
+
+
+            /*
+               Check the bank
+               farmer just left.
+            */
+
+            if (
+                !checkBankSafety(
+                    oldSide
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                passengerType
+            ) {
+
+                showMessage(
+
+                    `
+                    ${itemData[passengerType].emoji}
+                    ${itemData[passengerType].name}
+                    and 👨‍🌾 farmer
+                    arrived safely.
+                    <br><br>
+                    Drag the item out of the boat
+                    or continue.
+                    `,
+
+                    "info"
+
+                );
+
+            } else {
+
+                showMessage(
+
+                    `
+                    👨‍🌾 Farmer crossed alone.
+                    `,
+
+                    "info"
+
+                );
+
+            }
+
+
+            checkWin();
+
+            updateUI();
+
+        },
+        1200
+    );
+
+}
+
+
+/* =========================================================
+   WIN CHECK
+========================================================= */
+
+function checkWin() {
+
+    if (
+        state.gameWon
+    ) {
+
+        return;
+
+    }
+
+
+    const wolf =
+        getItemLocation("wolf");
+
+    const goat =
+        getItemLocation("goat");
+
+    const cabbage =
+        getItemLocation("cabbage");
+
+
+    if (
+
+        wolf === "right" &&
+        goat === "right" &&
+        cabbage === "right" &&
+        state.farmerSide === "right"
+
+    ) {
+
+        winGame();
+
+    }
+
+}
+
+
+/* =========================================================
+   WIN GAME
+========================================================= */
+
+function winGame() {
+
+    state.gameWon =
+        true;
+
+
+    state.crossing =
+        false;
+
+
+    crossBtn.disabled =
+        true;
+
+
+    showMessage(
+
+        `
+        🎉 <strong>PUZZLE SOLVED!</strong>
+
+        <br><br>
+
+        🐺 Wolf,
+        🐐 Goat,
+        and
+        🥬 Cabbage
+
+        are safely on the
+        <strong>RIGHT BANK!</strong>
+
+        <br><br>
+
+        🏆 You solved it in
+        <strong>${state.moves} crossings</strong>!
+
+        <br><br>
+
+        🧠🔥 Excellent work!
+        `,
+
+        "success"
+
+    );
+
+
+    document
+        .getElementById(
+            "gameBoard"
+        )
+        .classList.add(
+            "win-board"
+        );
+
+
+    createConfetti();
+
+
+    document.getElementById(
+        "solutionBox"
+    ).style.display =
+        "block";
+
+}
+
+
+/* =========================================================
+   LOSE GAME
+========================================================= */
+
+function loseGame(reason) {
+
+    if (
+        state.gameWon
+    ) {
+
+        return;
+
+    }
+
+
+    state.gameWon =
+        true;
+
+
+    crossBtn.disabled =
+        true;
+
+
+    showMessage(
+
+        `
+        ❌ <strong>Puzzle Failed!</strong>
+
+        <br><br>
+
+        ${reason}
+
+        <br><br>
+
+        Click
+        <strong>Reset</strong>
+        to try again.
+        `,
+
+        "error"
+
+    );
+
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+function showMessage(
+    text,
+    type
+) {
+
+    message.innerHTML =
+        text;
+
+    message.className =
+        "message " + type;
+
+}
+
+
+function hideMessage() {
+
+    message.innerHTML =
+        "";
+
+    message.className =
+        "message";
+
+}
+
+
+/* =========================================================
+   HINT
+========================================================= */
+
+let hintLevel =
+    0;
+
+
+function showHint() {
+
+    const box =
+        document.getElementById(
+            "hintBox"
+        );
+
+
+    hintLevel++;
+
+
+    if (
+        hintLevel === 1
+    ) {
+
+        box.innerHTML = `
+
+            💡 <strong>Hint:</strong>
+
+            Start by taking the
+            <strong>Goat 🐐</strong>
+            across the river.
+
+        `;
+
+    }
+
+    else if (
+        hintLevel === 2
+    ) {
+
+        box.innerHTML = `
+
+            💡 <strong>Hint:</strong>
+
+            After taking the goat,
+            return to the left bank
+            <strong>alone</strong>.
+
+        `;
+
+    }
+
+    else if (
+        hintLevel === 3
+    ) {
+
+        box.innerHTML = `
+
+            💡 <strong>Hint:</strong>
+
+            Take the
+            <strong>Wolf 🐺</strong>
+            across.
+
+            Then bring the
+            <strong>Goat 🐐</strong>
+            back.
+
+        `;
+
+    }
+
+    else {
+
+        box.innerHTML = `
+
+            💡 <strong>Full Hint:</strong>
+
+            <br><br>
+
+            🐐 →
+            👨‍🌾 ←
+            🐺 →
+            🐐 ←
+            🥬 →
+            👨‍🌾 ←
+            🐐 →
+
+        `;
+
+    }
+
+
+    box.style.display =
+        "block";
+
+}
+
+
+/* =========================================================
+   SOLUTION
+========================================================= */
+
+function showSolution() {
+
+    const box =
+        document.getElementById(
+            "solutionBox"
+        );
+
+
+    box.style.display =
+        "block";
+
+
+    box.scrollIntoView({
+
+        behavior: "smooth",
+
+        block: "nearest"
+
+    });
+
+}
+
+
+/* =========================================================
+   CONFETTI
+========================================================= */
+
+function createConfetti() {
+
+    const colors = [
+
+        "#2196f3",
+        "#27ae60",
+        "#f1c40f",
+        "#e74c3c",
+        "#9b59b6",
+        "#00bcd4"
+
+    ];
+
+
+    for (
+        let i = 0;
+        i < 90;
+        i++
+    ) {
+
+        const piece =
+            document.createElement(
+                "div"
+            );
+
+
+        piece.className =
+            "confetti";
+
+
+        piece.style.left =
+            Math.random() *
+            100 +
+            "vw";
+
+
+        piece.style.background =
+            colors[
+                Math.floor(
+                    Math.random() *
+                    colors.length
+                )
+            ];
+
+
+        piece.style.animationDelay =
+            Math.random() *
+            .8 +
+            "s";
+
+
+        document.body.appendChild(
+            piece
+        );
+
+
+        setTimeout(
+            function() {
+
+                piece.remove();
+
+            },
+            3500
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   START GAME
+========================================================= */
+
+window.addEventListener(
+    "load",
+    function() {
+
+        resetGame();
+
+    }
+);
+
+</script>
+
+</body>
+</html>

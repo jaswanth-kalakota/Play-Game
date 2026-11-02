@@ -1,0 +1,3246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>8 Balls Balance Puzzle</title>
+
+<style>
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eef3f8,
+            #dce5ee
+        );
+
+    color: #263746;
+
+    min-height: 100vh;
+
+    user-select: none;
+}
+
+.container {
+    width: 94%;
+
+    max-width: 1200px;
+
+    margin: auto;
+
+    padding: 25px 0 50px;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+header {
+    text-align: center;
+
+    margin-bottom: 18px;
+}
+
+header h1 {
+    margin: 0;
+
+    font-size: 2.2rem;
+
+    color: #243746;
+}
+
+header p {
+    color: #687985;
+
+    margin-top: 8px;
+}
+
+
+/* =========================================================
+   INSTRUCTIONS
+========================================================= */
+
+.instructions {
+    background: white;
+
+    padding: 20px;
+
+    border-radius: 14px;
+
+    margin-bottom: 18px;
+
+    box-shadow:
+        0 5px 18px
+        rgba(0,0,0,0.08);
+}
+
+.instructions h3 {
+    margin-top: 0;
+}
+
+.instructions p {
+    color: #596b78;
+
+    line-height: 1.55;
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.controls {
+    display: flex;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 9px;
+
+    margin: 15px 0;
+}
+
+button {
+    border: none;
+
+    padding: 11px 18px;
+
+    border-radius: 8px;
+
+    color: white;
+
+    font-size: 0.9rem;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.18s,
+        filter 0.18s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+
+    filter: brightness(1.08);
+}
+
+.reset {
+    background: #34495e;
+}
+
+.hint {
+    background: #f39c12;
+}
+
+.check {
+    background: #27ae60;
+}
+
+.solutionButton {
+    background: #8e44ad;
+}
+
+.weigh {
+    background: #16a085;
+
+    padding:
+        13px 28px;
+
+    font-size: 1rem;
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.stats {
+    display: flex;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin: 15px 0;
+}
+
+.stat {
+    min-width: 160px;
+
+    background: white;
+
+    padding: 11px 20px;
+
+    border-radius: 10px;
+
+    text-align: center;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 4px 15px
+        rgba(0,0,0,0.08);
+}
+
+.stat span {
+    display: block;
+
+    margin-top: 4px;
+
+    font-size: 1.25rem;
+}
+
+
+/* =========================================================
+   SCALE CARD
+========================================================= */
+
+.scale-container {
+    background: white;
+
+    border-radius: 16px;
+
+    padding: 20px;
+
+    margin-top: 18px;
+
+    box-shadow:
+        0 8px 25px
+        rgba(0,0,0,0.1);
+}
+
+.scale-title {
+    text-align: center;
+
+    margin-bottom: 12px;
+}
+
+.scale-title h2 {
+    margin: 0;
+}
+
+.scale-title p {
+    margin: 5px 0;
+
+    color: #7a8994;
+}
+
+
+/* =========================================================
+   SCALE
+========================================================= */
+
+#scale {
+    height: 430px;
+
+    position: relative;
+
+    overflow: hidden;
+
+    border-radius: 12px;
+
+    background:
+        radial-gradient(
+            circle at 50% 40%,
+            #ffffff,
+            #e9eef2
+        );
+}
+
+
+/* =========================================================
+   RESULT ON SCALE
+========================================================= */
+
+#scaleResult {
+    position: absolute;
+
+    top: 15px;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%)
+        translateY(-10px);
+
+    min-width: 310px;
+
+    padding: 12px 25px;
+
+    background:
+        rgba(255,255,255,0.97);
+
+    border-radius: 12px;
+
+    text-align: center;
+
+    font-size: 1.05rem;
+
+    font-weight: bold;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    z-index: 5000;
+
+    box-shadow:
+        0 5px 15px
+        rgba(0,0,0,0.15);
+
+    transition:
+        opacity 0.3s,
+        transform 0.3s;
+}
+
+#scaleResult.show {
+    opacity: 1;
+
+    transform:
+        translateX(-50%)
+        translateY(0);
+}
+
+#scaleResult.left {
+    color: #c0392b;
+
+    border: 2px solid #e74c3c;
+}
+
+#scaleResult.right {
+    color: #2980b9;
+
+    border: 2px solid #3498db;
+}
+
+#scaleResult.equal {
+    color: #27ae60;
+
+    border: 2px solid #2ecc71;
+}
+
+#scaleResult.warning {
+    color: #d68910;
+
+    border: 2px solid #f39c12;
+}
+
+
+/* =========================================================
+   BEAM
+========================================================= */
+
+#beam {
+    position: absolute;
+
+    top: 145px;
+
+    left: 50%;
+
+    width: 600px;
+
+    height: 18px;
+
+    transform:
+        translateX(-50%)
+        rotate(0deg);
+
+    transform-origin: center;
+
+    background:
+        linear-gradient(
+            #7f8c8d,
+            #34495e
+        );
+
+    border-radius: 10px;
+
+    transition:
+        transform 0.8s
+        cubic-bezier(.2,.8,.2,1);
+
+    z-index: 20;
+}
+
+
+/* =========================================================
+   PIVOT
+========================================================= */
+
+.pivot {
+    position: absolute;
+
+    left: 50%;
+
+    top: 165px;
+
+    transform:
+        translate(-50%,-50%);
+
+    width: 45px;
+
+    height: 45px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #f1c40f,
+            #d4ac0d
+        );
+
+    border: 4px solid #a67c00;
+
+    z-index: 40;
+}
+
+
+/* =========================================================
+   COLUMN
+========================================================= */
+
+.scale-column {
+    position: absolute;
+
+    bottom: 55px;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    width: 25px;
+
+    height: 210px;
+
+    background:
+        linear-gradient(
+            to right,
+            #7f8c8d,
+            #34495e,
+            #7f8c8d
+        );
+
+    border-radius: 8px;
+}
+
+
+/* =========================================================
+   BASE
+========================================================= */
+
+.scale-base {
+    position: absolute;
+
+    bottom: 25px;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    width: 230px;
+
+    height: 35px;
+
+    background:
+        linear-gradient(
+            #566573,
+            #34495e
+        );
+
+    border-radius: 8px;
+}
+
+
+/* =========================================================
+   PANS
+========================================================= */
+
+.pan {
+    position: absolute;
+
+    top: 155px;
+
+    width: 250px;
+
+    height: 150px;
+
+    z-index: 30;
+}
+
+#leftPan {
+    left: 20px;
+}
+
+#rightPan {
+    right: 20px;
+}
+
+
+/* =========================================================
+   PAN DISH
+========================================================= */
+
+.pan-dish {
+    position: absolute;
+
+    bottom: 0;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    width: 230px;
+
+    height: 75px;
+
+    background:
+        linear-gradient(
+            #d5d8dc,
+            #aeb4ba
+        );
+
+    border:
+        3px solid
+        #7f8c8d;
+
+    border-radius:
+        0 0 120px 120px;
+
+    box-shadow:
+        0 7px 12px
+        rgba(0,0,0,0.2);
+}
+
+
+/* =========================================================
+   DROP ZONE
+========================================================= */
+
+.drop-zone {
+    position: absolute;
+
+    left: 50%;
+
+    top: 15px;
+
+    transform:
+        translateX(-50%);
+
+    width: 190px;
+
+    height: 105px;
+
+    border:
+        2px dashed
+        rgba(52,73,94,0.35);
+
+    border-radius: 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: #8997a1;
+
+    font-size: 0.85rem;
+
+    pointer-events: none;
+
+    transition:
+        background 0.2s,
+        border 0.2s;
+}
+
+.pan.active .drop-zone {
+
+    background:
+        rgba(52,152,219,0.13);
+
+    border:
+        2px dashed
+        #3498db;
+
+    color: #2980b9;
+}
+
+
+/* =========================================================
+   ROPES
+========================================================= */
+
+.pan-rope {
+    position: absolute;
+
+    bottom: 55px;
+
+    width: 4px;
+
+    height: 75px;
+
+    background: #7f8c8d;
+
+    z-index: 1;
+}
+
+.rope-left {
+    left: 35px;
+}
+
+.rope-right {
+    right: 35px;
+}
+
+
+/* =========================================================
+   BALL POOL
+========================================================= */
+
+.ball-area {
+    background: white;
+
+    border-radius: 16px;
+
+    padding: 20px;
+
+    margin-top: 20px;
+
+    box-shadow:
+        0 8px 25px
+        rgba(0,0,0,0.08);
+}
+
+.ball-area h2 {
+    text-align: center;
+
+    margin-top: 0;
+}
+
+.ball-instruction {
+    text-align: center;
+
+    color: #7a8994;
+
+    font-size: 0.9rem;
+
+    margin-bottom: 12px;
+}
+
+#ballPool {
+
+    min-height: 140px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 20px;
+
+    padding: 18px;
+
+    border:
+        2px dashed
+        #cbd3d9;
+
+    border-radius: 12px;
+
+    position: relative;
+}
+
+
+/* =========================================================
+   BALL
+========================================================= */
+
+.ball {
+
+    width: 70px;
+
+    height: 70px;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    position: relative;
+
+    cursor: grab;
+
+    touch-action: none;
+
+    background:
+        radial-gradient(
+            circle at 30% 25%,
+            #ffffff,
+            #eeeeee 35%,
+            #c9c9c9 70%,
+            #999999
+        );
+
+    border:
+        3px solid
+        #888;
+
+    box-shadow:
+        0 7px 12px
+        rgba(0,0,0,0.3),
+
+        inset 0 2px 5px
+        rgba(255,255,255,0.8);
+
+    transition:
+        transform 0.15s,
+        box-shadow 0.15s;
+
+    z-index: 100;
+}
+
+.ball-number {
+
+    font-size: 1.15rem;
+
+    font-weight: bold;
+
+    color: #34495e;
+
+    pointer-events: none;
+}
+
+.ball:hover {
+    transform:
+        scale(1.07);
+}
+
+.ball.selected {
+
+    transform:
+        scale(1.13);
+
+    box-shadow:
+        0 0 0 4px
+        rgba(52,152,219,0.55),
+
+        0 12px 20px
+        rgba(0,0,0,0.4);
+
+    z-index: 1000;
+}
+
+
+/* =========================================================
+   IMPORTANT:
+   DRAGGING BALL IS FIXED TO THE SCREEN
+========================================================= */
+
+.ball.dragging {
+
+    position: fixed !important;
+
+    width: 70px !important;
+
+    height: 70px !important;
+
+    margin: 0 !important;
+
+    z-index: 999999 !important;
+
+    pointer-events: none;
+
+    transform:
+        scale(1.12);
+
+    opacity: 0.9;
+
+    cursor: grabbing;
+
+    transition: none;
+}
+
+
+/* =========================================================
+   BALLS INSIDE PAN
+========================================================= */
+
+.pan-dish .ball {
+
+    width: 52px;
+
+    height: 52px;
+
+    position: absolute;
+
+    cursor: grab;
+}
+
+.pan-dish .ball-number {
+
+    font-size: 0.9rem;
+}
+
+
+/* =========================================================
+   WEIGH BUTTON
+========================================================= */
+
+.weigh-area {
+
+    text-align: center;
+
+    margin-top: 18px;
+}
+
+.weigh-info {
+
+    margin-top: 7px;
+
+    color: #778793;
+
+    font-size: 0.85rem;
+}
+
+
+/* =========================================================
+   RESULT
+========================================================= */
+
+#result {
+
+    display: none;
+
+    margin-top: 18px;
+
+    padding: 20px;
+
+    border-radius: 12px;
+
+    text-align: center;
+
+    line-height: 1.6;
+}
+
+.success {
+
+    display: block;
+
+    background: #eafaf1;
+
+    border:
+        2px solid
+        #27ae60;
+
+    color: #196f3d;
+}
+
+.failure {
+
+    display: block;
+
+    background: #fdedec;
+
+    border:
+        2px solid
+        #e74c3c;
+
+    color: #922b21;
+}
+
+
+/* =========================================================
+   HINT
+========================================================= */
+
+#hintBox {
+
+    display: none;
+
+    margin-top: 18px;
+
+    padding: 17px;
+
+    background: #fff8e7;
+
+    border-left:
+        5px solid
+        #f39c12;
+
+    border-radius: 9px;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   SOLUTION
+========================================================= */
+
+#solution {
+
+    display: none;
+
+    background: white;
+
+    margin-top: 18px;
+
+    padding: 22px;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 5px 18px
+        rgba(0,0,0,0.08);
+
+    line-height: 1.6;
+}
+
+#solution h3 {
+    margin-top: 0;
+}
+
+.solution-step {
+
+    background: #f6f8fa;
+
+    padding: 12px;
+
+    border-radius: 8px;
+
+    margin: 10px 0;
+}
+
+
+/* =========================================================
+   CONFETTI
+========================================================= */
+
+.confetti {
+
+    position: fixed;
+
+    width: 9px;
+
+    height: 15px;
+
+    top: -20px;
+
+    z-index: 1000000;
+
+    animation:
+        fall
+        2.5s
+        linear
+        forwards;
+}
+
+@keyframes fall {
+
+    to {
+
+        transform:
+            translateY(110vh)
+            rotate(720deg);
+
+        opacity: 0;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:800px) {
+
+    header h1 {
+        font-size: 1.7rem;
+    }
+
+    #scale {
+        height: 470px;
+    }
+
+    #beam {
+        width: 90%;
+    }
+
+    .pan {
+        width: 45%;
+    }
+
+    #leftPan {
+        left: 2%;
+    }
+
+    #rightPan {
+        right: 2%;
+    }
+
+    .pan-dish {
+        width: 90%;
+    }
+
+    .drop-zone {
+        width: 80%;
+    }
+
+    .ball {
+        width: 58px;
+
+        height: 58px;
+    }
+
+    .ball.dragging {
+        width: 58px !important;
+
+        height: 58px !important;
+    }
+
+    #scaleResult {
+        min-width: 240px;
+
+        font-size: 0.9rem;
+
+        padding: 10px 15px;
+    }
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header>
+
+    <h1>
+        ⚖️ The 8 Balls Puzzle
+    </h1>
+
+    <p>
+        Find the heavier ball using only
+        <strong>2 weighings</strong>.
+    </p>
+
+</header>
+
+
+<!-- =====================================================
+     INSTRUCTIONS
+===================================================== -->
+
+<div class="instructions">
+
+    <h3>
+        🧠 Your Challenge
+    </h3>
+
+    <p>
+        You have
+        <strong>8 identical-looking balls</strong>.
+        One ball is slightly heavier than the other 7.
+    </p>
+
+    <p>
+        You have a balance scale and can use it only
+        <strong>2 times</strong>.
+    </p>
+
+    <p>
+        Your goal is to
+        <strong>definitely identify the heavier ball</strong>.
+    </p>
+
+    <p>
+
+        🖱️ Drag balls directly from the Ball Pool
+        onto either side of the scale.
+
+        <br>
+
+        👆 Click a ball to select it.
+
+        <br>
+
+        🔄 Double-click a ball to return it
+        to the Ball Pool.
+
+    </p>
+
+</div>
+
+
+<!-- =====================================================
+     CONTROLS
+===================================================== -->
+
+<div class="controls">
+
+    <button
+        class="reset"
+        onclick="resetGame()">
+
+        🔄 Reset Puzzle
+
+    </button>
+
+
+    <button
+        class="hint"
+        onclick="showHint()">
+
+        💡 Hint
+
+    </button>
+
+
+    <button
+        class="check"
+        onclick="checkAnswer()">
+
+        ✅ Check Answer
+
+    </button>
+
+
+    <button
+        class="solutionButton"
+        onclick="showSolution()">
+
+        🧠 Show Solution
+
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+     STATS
+===================================================== -->
+
+<div class="stats">
+
+    <div class="stat">
+
+        ⚖️ Weighings
+
+        <span id="weighCount">
+            0 / 2
+        </span>
+
+    </div>
+
+
+    <div class="stat">
+
+        ⚪ Balls Available
+
+        <span id="poolCount">
+            8
+        </span>
+
+    </div>
+
+
+    <div class="stat">
+
+        🏆 Status
+
+        <span id="status">
+            Playing
+        </span>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     SCALE
+===================================================== -->
+
+<div class="scale-container">
+
+    <div class="scale-title">
+
+        <h2>
+            ⚖️ Balance Scale
+        </h2>
+
+        <p>
+            Drag balls directly onto the baskets.
+        </p>
+
+    </div>
+
+
+    <div id="scale">
+
+
+        <!-- RESULT -->
+
+        <div id="scaleResult"></div>
+
+
+        <!-- BEAM -->
+
+        <div id="beam"></div>
+
+
+        <!-- PIVOT -->
+
+        <div class="pivot"></div>
+
+
+        <!-- COLUMN -->
+
+        <div class="scale-column"></div>
+
+
+        <!-- LEFT PAN -->
+
+        <div
+            class="pan"
+            id="leftPan">
+
+            <div class="drop-zone">
+
+                Drop balls here
+
+            </div>
+
+            <div class="pan-rope rope-left"></div>
+
+            <div class="pan-rope rope-right"></div>
+
+
+            <div
+                class="pan-dish"
+                id="leftPanDish">
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT PAN -->
+
+        <div
+            class="pan"
+            id="rightPan">
+
+            <div class="drop-zone">
+
+                Drop balls here
+
+            </div>
+
+            <div class="pan-rope rope-left"></div>
+
+            <div class="pan-rope rope-right"></div>
+
+
+            <div
+                class="pan-dish"
+                id="rightPanDish">
+            </div>
+
+        </div>
+
+
+        <!-- BASE -->
+
+        <div class="scale-base"></div>
+
+    </div>
+
+
+    <!-- WEIGH -->
+
+    <div class="weigh-area">
+
+        <button
+            class="weigh"
+            onclick="performWeighing()">
+
+            ⚖️ WEIGH
+
+        </button>
+
+        <div class="weigh-info">
+
+            Maximum:
+            <strong>2 weighings</strong>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     BALL POOL
+===================================================== -->
+
+<div class="ball-area">
+
+    <h2>
+        ⚪ Ball Pool
+    </h2>
+
+    <div class="ball-instruction">
+
+        Drag a ball directly from here
+        to either balance basket.
+
+    </div>
+
+
+    <div id="ballPool"></div>
+
+</div>
+
+
+<!-- =====================================================
+     HINT
+===================================================== -->
+
+<div id="hintBox"></div>
+
+
+<!-- =====================================================
+     RESULT
+===================================================== -->
+
+<div id="result"></div>
+
+
+<!-- =====================================================
+     SOLUTION
+===================================================== -->
+
+<div id="solution">
+
+    <h3>
+        🧠 Complete Solution
+    </h3>
+
+
+    <div class="solution-step">
+
+        <strong>
+            Step 1 — First Weighing
+        </strong>
+
+        <p>
+
+            Put three balls on the left
+            and three balls on the right.
+
+            <br><br>
+
+            ⚪ ⚪ ⚪
+
+            &nbsp;
+
+            <strong>VS</strong>
+
+            &nbsp;
+
+            ⚪ ⚪ ⚪
+
+            <br><br>
+
+            Leave two balls aside.
+
+        </p>
+
+    </div>
+
+
+    <div class="solution-step">
+
+        <strong>
+            Case 1 — The Scale Balances
+        </strong>
+
+        <p>
+
+            The heavier ball must be one
+            of the two balls left aside.
+
+        </p>
+
+        <p>
+
+            Compare those two balls.
+
+            <br><br>
+
+            ⚪
+
+            &nbsp;
+
+            <strong>VS</strong>
+
+            &nbsp;
+
+            ⚪
+
+        </p>
+
+        <p>
+
+            The heavier side identifies
+            the heavier ball.
+
+        </p>
+
+    </div>
+
+
+    <div class="solution-step">
+
+        <strong>
+            Case 2 — One Side Is Heavier
+        </strong>
+
+        <p>
+
+            Suppose the left side is heavier.
+
+            The heavy ball is among those
+            three balls.
+
+        </p>
+
+        <p>
+
+            Compare two of those three balls.
+
+            <br><br>
+
+            ⚪ ⚪
+
+            &nbsp;
+
+            <strong>VS</strong>
+
+            &nbsp;
+
+            ⚪ ⚪
+
+        </p>
+
+        <p>
+
+            If one side is heavier,
+            the heavy ball is on that side.
+
+            If they balance,
+            the third ball is the heavy one.
+
+        </p>
+
+    </div>
+
+
+    <hr>
+
+
+    <h3>
+        🎯 Why It Works
+    </h3>
+
+    <p>
+
+        The first weighing reduces the possibilities
+        from 8 balls to at most 3.
+
+    </p>
+
+    <p>
+
+        The second weighing identifies the heavier
+        ball among those remaining possibilities.
+
+    </p>
+
+</div>
+
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   GAME VARIABLES
+========================================================= */
+
+const ballPool =
+    document.getElementById(
+        "ballPool"
+    );
+
+const scale =
+    document.getElementById(
+        "scale"
+    );
+
+const scaleResult =
+    document.getElementById(
+        "scaleResult"
+    );
+
+const beam =
+    document.getElementById(
+        "beam"
+    );
+
+const leftPan =
+    document.getElementById(
+        "leftPanDish"
+    );
+
+const rightPan =
+    document.getElementById(
+        "rightPanDish"
+    );
+
+let selectedBall = null;
+
+let weighingCount = 0;
+
+let heavyBall = 1;
+
+let gameOver = false;
+
+let hintLevel = 0;
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+function resetGame() {
+
+    ballPool.innerHTML = "";
+
+    leftPan.innerHTML = "";
+
+    rightPan.innerHTML = "";
+
+
+    /*
+       Rebuild pan drop zones.
+    */
+
+    createPanContents(
+        leftPan
+    );
+
+    createPanContents(
+        rightPan
+    );
+
+
+    selectedBall = null;
+
+    weighingCount = 0;
+
+    gameOver = false;
+
+    hintLevel = 0;
+
+
+    /*
+       Random heavy ball.
+    */
+
+    heavyBall =
+        Math.floor(
+            Math.random() * 8
+        ) + 1;
+
+
+    /*
+       Reset scale.
+    */
+
+    beam.style.transform =
+        "translateX(-50%) rotate(0deg)";
+
+
+    scaleResult.className = "";
+
+    scaleResult.innerText = "";
+
+
+    /*
+       Reset stats.
+    */
+
+    document.getElementById(
+        "weighCount"
+    ).innerText =
+        "0 / 2";
+
+
+    document.getElementById(
+        "poolCount"
+    ).innerText =
+        "8";
+
+
+    document.getElementById(
+        "status"
+    ).innerText =
+        "Playing";
+
+
+    /*
+       Hide messages.
+    */
+
+    document.getElementById(
+        "result"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "hintBox"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "solution"
+    ).style.display =
+        "none";
+
+
+    /*
+       Create 8 balls.
+    */
+
+    for (
+        let i = 1;
+        i <= 8;
+        i++
+    ) {
+
+        createBall(i);
+
+    }
+
+}
+
+
+/* =========================================================
+   CREATE PAN CONTENTS
+========================================================= */
+
+function createPanContents(
+    pan
+) {
+
+    pan.innerHTML = `
+
+        <div
+            class="drop-zone">
+
+            Drop balls here
+
+        </div>
+
+        <div
+            class="pan-rope rope-left">
+        </div>
+
+        <div
+            class="pan-rope rope-right">
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   CREATE BALL
+========================================================= */
+
+function createBall(
+    id
+) {
+
+    const ball =
+        document.createElement(
+            "div"
+        );
+
+
+    ball.className =
+        "ball";
+
+
+    ball.dataset.id =
+        id;
+
+
+    ball.innerHTML = `
+
+        <span
+            class="ball-number">
+
+            ${id}
+
+        </span>
+
+    `;
+
+
+    ballPool.appendChild(
+        ball
+    );
+
+
+    /*
+       Click selection.
+    */
+
+    ball.addEventListener(
+        "click",
+        function(e) {
+
+            e.stopPropagation();
+
+            selectBall(
+                ball
+            );
+
+        }
+    );
+
+
+    /*
+       Double click returns
+       to pool.
+    */
+
+    ball.addEventListener(
+        "dblclick",
+        function(e) {
+
+            e.preventDefault();
+
+            e.stopPropagation();
+
+            returnBallToPool(
+                ball
+            );
+
+        }
+    );
+
+
+    enableDragging(
+        ball
+    );
+
+}
+
+
+/* =========================================================
+   SELECT BALL
+========================================================= */
+
+function selectBall(
+    ball
+) {
+
+    document
+        .querySelectorAll(
+            ".ball.selected"
+        )
+        .forEach(
+            b =>
+                b.classList.remove(
+                    "selected"
+                )
+        );
+
+
+    selectedBall =
+        ball;
+
+
+    ball.classList.add(
+        "selected"
+    );
+
+}
+
+
+/* =========================================================
+   DRAGGING SYSTEM
+========================================================= */
+
+function enableDragging(
+    ball
+) {
+
+    let dragging = false;
+
+    let startX = 0;
+
+    let startY = 0;
+
+    let offsetX = 0;
+
+    let offsetY = 0;
+
+    let originalParent = null;
+
+    let originalNextSibling = null;
+
+
+    ball.addEventListener(
+        "pointerdown",
+        function(e) {
+
+            if (
+                e.pointerType === "mouse" &&
+                e.button !== 0
+            ) {
+
+                return;
+
+            }
+
+
+            e.preventDefault();
+
+            e.stopPropagation();
+
+
+            const rect =
+                ball.getBoundingClientRect();
+
+
+            startX =
+                e.clientX;
+
+            startY =
+                e.clientY;
+
+
+            offsetX =
+                e.clientX -
+                rect.left;
+
+
+            offsetY =
+                e.clientY -
+                rect.top;
+
+
+            originalParent =
+                ball.parentElement;
+
+
+            originalNextSibling =
+                ball.nextSibling;
+
+
+            /*
+               Capture pointer.
+            */
+
+            ball.setPointerCapture(
+                e.pointerId
+            );
+
+
+            /*
+               Store original size
+               before fixed dragging.
+            */
+
+            dragging = false;
+
+        }
+    );
+
+
+    ball.addEventListener(
+        "pointermove",
+        function(e) {
+
+            if (
+                !ball.hasPointerCapture(
+                    e.pointerId
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            const dx =
+                e.clientX -
+                startX;
+
+
+            const dy =
+                e.clientY -
+                startY;
+
+
+            const distance =
+                Math.sqrt(
+                    dx * dx +
+                    dy * dy
+                );
+
+
+            /*
+               Small movement = click.
+            */
+
+            if (
+                !dragging &&
+                distance < 6
+            ) {
+
+                return;
+
+            }
+
+
+            /*
+               START DRAGGING
+            */
+
+            if (!dragging) {
+
+                dragging = true;
+
+
+                /*
+                   Remove selection while dragging.
+                */
+
+                ball.classList.remove(
+                    "selected"
+                );
+
+
+                if (
+                    selectedBall === ball
+                ) {
+
+                    selectedBall = null;
+
+                }
+
+
+                /*
+                   Make ball fixed to
+                   viewport.
+
+                   THIS IS THE IMPORTANT FIX.
+                */
+
+                const rect =
+                    ball.getBoundingClientRect();
+
+
+                ball.style.position =
+                    "fixed";
+
+
+                ball.style.width =
+                    rect.width + "px";
+
+
+                ball.style.height =
+                    rect.height + "px";
+
+
+                ball.style.left =
+                    rect.left + "px";
+
+
+                ball.style.top =
+                    rect.top + "px";
+
+
+                ball.style.margin =
+                    "0";
+
+
+                ball.style.zIndex =
+                    "999999";
+
+
+                ball.classList.add(
+                    "dragging"
+                );
+
+
+                /*
+                   The ball remains visually
+                   above everything while dragging.
+                */
+
+            }
+
+
+            /*
+               Move fixed ball.
+            */
+
+            let newLeft =
+                e.clientX -
+                offsetX;
+
+
+            let newTop =
+                e.clientY -
+                offsetY;
+
+
+            /*
+               Keep inside browser viewport.
+            */
+
+            newLeft =
+                Math.max(
+                    0,
+                    Math.min(
+                        newLeft,
+                        window.innerWidth -
+                        ball.offsetWidth
+                    )
+                );
+
+
+            newTop =
+                Math.max(
+                    0,
+                    Math.min(
+                        newTop,
+                        window.innerHeight -
+                        ball.offsetHeight
+                    )
+                );
+
+
+            ball.style.left =
+                newLeft + "px";
+
+
+            ball.style.top =
+                newTop + "px";
+
+
+            /*
+               Detect basket below cursor.
+            */
+
+            highlightTargetPan(
+                e.clientX,
+                e.clientY
+            );
+
+        }
+    );
+
+
+    ball.addEventListener(
+        "pointerup",
+        function(e) {
+
+            if (
+                !ball.hasPointerCapture(
+                    e.pointerId
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            ball.releasePointerCapture(
+                e.pointerId
+            );
+
+
+            /*
+               If it wasn't dragged,
+               treat it as click.
+            */
+
+            if (!dragging) {
+
+                selectBall(
+                    ball
+                );
+
+                return;
+
+            }
+
+
+            dragging = false;
+
+
+            ball.classList.remove(
+                "dragging"
+            );
+
+
+            removePanHighlight();
+
+
+            /*
+               IMPORTANT:
+               Determine destination
+               BEFORE changing position.
+            */
+
+            const target =
+                getPanAtPoint(
+                    e.clientX,
+                    e.clientY
+                );
+
+
+            if (
+                target === "left"
+            ) {
+
+                placeBallOnPan(
+                    ball,
+                    "left"
+                );
+
+            }
+
+            else if (
+                target === "right"
+            ) {
+
+                placeBallOnPan(
+                    ball,
+                    "right"
+                );
+
+            }
+
+            else {
+
+                /*
+                   If dropped anywhere else,
+                   return to original location.
+                */
+
+                restoreBall(
+                    ball,
+                    originalParent,
+                    originalNextSibling
+                );
+
+            }
+
+
+            updatePoolCount();
+
+        }
+    );
+
+
+    ball.addEventListener(
+        "pointercancel",
+        function(e) {
+
+            dragging = false;
+
+            ball.classList.remove(
+                "dragging"
+            );
+
+            removePanHighlight();
+
+
+            restoreBall(
+                ball,
+                originalParent,
+                originalNextSibling
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   FIND PAN UNDER POINTER
+========================================================= */
+
+function getPanAtPoint(
+    x,
+    y
+) {
+
+    const left =
+        document
+            .getElementById(
+                "leftPan"
+            )
+            .getBoundingClientRect();
+
+
+    const right =
+        document
+            .getElementById(
+                "rightPan"
+            )
+            .getBoundingClientRect();
+
+
+    if (
+        x >= left.left &&
+        x <= left.right &&
+        y >= left.top &&
+        y <= left.bottom
+    ) {
+
+        return "left";
+
+    }
+
+
+    if (
+        x >= right.left &&
+        x <= right.right &&
+        y >= right.top &&
+        y <= right.bottom
+    ) {
+
+        return "right";
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =========================================================
+   HIGHLIGHT PAN
+========================================================= */
+
+function highlightTargetPan(
+    x,
+    y
+) {
+
+    removePanHighlight();
+
+
+    const target =
+        getPanAtPoint(
+            x,
+            y
+        );
+
+
+    if (
+        target === "left"
+    ) {
+
+        document
+            .getElementById(
+                "leftPan"
+            )
+            .classList.add(
+                "active"
+            );
+
+    }
+
+
+    if (
+        target === "right"
+    ) {
+
+        document
+            .getElementById(
+                "rightPan"
+            )
+            .classList.add(
+                "active"
+            );
+
+    }
+
+}
+
+
+/* =========================================================
+   REMOVE PAN HIGHLIGHT
+========================================================= */
+
+function removePanHighlight() {
+
+    document
+        .getElementById(
+            "leftPan"
+        )
+        .classList.remove(
+            "active"
+        );
+
+
+    document
+        .getElementById(
+            "rightPan"
+        )
+        .classList.remove(
+            "active"
+        );
+
+}
+
+
+/* =========================================================
+   PLACE BALL ON PAN
+========================================================= */
+
+function placeBallOnPan(
+    ball,
+    side
+) {
+
+    const pan =
+        side === "left"
+            ? document.getElementById(
+                "leftPanDish"
+            )
+            : document.getElementById(
+                "rightPanDish"
+            );
+
+
+    /*
+       Clear fixed positioning.
+    */
+
+    ball.style.position =
+        "absolute";
+
+
+    ball.style.width = "";
+
+    ball.style.height = "";
+
+    ball.style.left = "";
+
+    ball.style.top = "";
+
+    ball.style.margin = "";
+
+    ball.style.zIndex = "";
+
+
+    /*
+       Put ball inside basket.
+    */
+
+    pan.appendChild(
+        ball
+    );
+
+
+    /*
+       Arrange balls.
+    */
+
+    arrangePanBalls(
+        pan
+    );
+
+
+    ball.classList.remove(
+        "selected"
+    );
+
+
+    if (
+        selectedBall === ball
+    ) {
+
+        selectedBall = null;
+
+    }
+
+}
+
+
+/* =========================================================
+   ARRANGE BALLS
+========================================================= */
+
+function arrangePanBalls(
+    pan
+) {
+
+    const balls =
+        pan.querySelectorAll(
+            ".ball"
+        );
+
+
+    const positions = [
+
+        [20, 10],
+
+        [78, 10],
+
+        [136, 10],
+
+        [194, 10],
+
+        [49, 50],
+
+        [107, 50],
+
+        [165, 50],
+
+        [20, 50]
+
+    ];
+
+
+    balls.forEach(
+        function(ball, index) {
+
+            const position =
+                positions[
+                    index %
+                    positions.length
+                ];
+
+
+            ball.style.position =
+                "absolute";
+
+
+            ball.style.left =
+                position[0] + "px";
+
+
+            ball.style.top =
+                position[1] + "px";
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   RESTORE BALL
+========================================================= */
+
+function restoreBall(
+    ball,
+    originalParent,
+    originalNextSibling
+) {
+
+    /*
+       Reset fixed positioning.
+    */
+
+    ball.style.position =
+        "";
+
+
+    ball.style.width =
+        "";
+
+
+    ball.style.height =
+        "";
+
+
+    ball.style.left =
+        "";
+
+
+    ball.style.top =
+        "";
+
+
+    ball.style.margin =
+        "";
+
+
+    ball.style.zIndex =
+        "";
+
+
+    /*
+       Restore to original parent.
+    */
+
+    if (
+        originalNextSibling &&
+        originalNextSibling.parentNode ===
+        originalParent
+    ) {
+
+        originalParent.insertBefore(
+            ball,
+            originalNextSibling
+        );
+
+    }
+
+    else {
+
+        originalParent.appendChild(
+            ball
+        );
+
+    }
+
+
+    /*
+       If restored to pool,
+       remove pan-style position.
+    */
+
+    if (
+        originalParent ===
+        ballPool
+    ) {
+
+        ball.style.position = "";
+
+    }
+
+}
+
+
+/* =========================================================
+   RETURN BALL TO POOL
+========================================================= */
+
+function returnBallToPool(
+    ball
+) {
+
+    ballPool.appendChild(
+        ball
+    );
+
+
+    ball.style.position = "";
+
+    ball.style.width = "";
+
+    ball.style.height = "";
+
+    ball.style.left = "";
+
+    ball.style.top = "";
+
+    ball.style.margin = "";
+
+    ball.style.zIndex = "";
+
+
+    ball.classList.remove(
+        "selected"
+    );
+
+
+    if (
+        selectedBall === ball
+    ) {
+
+        selectedBall = null;
+
+    }
+
+
+    updatePoolCount();
+
+}
+
+
+/* =========================================================
+   UPDATE BALL COUNT
+========================================================= */
+
+function updatePoolCount() {
+
+    const count =
+        ballPool.querySelectorAll(
+            ".ball"
+        ).length;
+
+
+    document.getElementById(
+        "poolCount"
+    ).innerText =
+        count;
+
+}
+
+
+/* =========================================================
+   WEIGH
+========================================================= */
+
+function performWeighing() {
+
+    if (gameOver) {
+
+        return;
+
+    }
+
+
+    if (
+        weighingCount >= 2
+    ) {
+
+        showScaleResult(
+            "❌ No weighings remaining",
+            "warning"
+        );
+
+        return;
+
+    }
+
+
+    const leftBalls =
+        leftPan.querySelectorAll(
+            ".ball"
+        );
+
+
+    const rightBalls =
+        rightPan.querySelectorAll(
+            ".ball"
+        );
+
+
+    /*
+       Must have balls.
+    */
+
+    if (
+        leftBalls.length === 0 ||
+        rightBalls.length === 0
+    ) {
+
+        showScaleResult(
+            "⚠️ Place balls on both sides first",
+            "warning"
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Equal number required.
+    */
+
+    if (
+        leftBalls.length !==
+        rightBalls.length
+    ) {
+
+        showScaleResult(
+            "⚠️ Both sides need the same number of balls",
+            "warning"
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Determine result.
+    */
+
+    const leftHasHeavy =
+        [
+            ...leftBalls
+        ].some(
+            ball =>
+                Number(
+                    ball.dataset.id
+                ) === heavyBall
+        );
+
+
+    const rightHasHeavy =
+        [
+            ...rightBalls
+        ].some(
+            ball =>
+                Number(
+                    ball.dataset.id
+                ) === heavyBall
+        );
+
+
+    let result;
+
+
+    if (
+        leftHasHeavy
+    ) {
+
+        result = "left";
+
+    }
+
+    else if (
+        rightHasHeavy
+    ) {
+
+        result = "right";
+
+    }
+
+    else {
+
+        result = "equal";
+
+    }
+
+
+    weighingCount++;
+
+
+    document.getElementById(
+        "weighCount"
+    ).innerText =
+        `${weighingCount} / 2`;
+
+
+    /*
+       Animate.
+    */
+
+    animateScale(
+        result
+    );
+
+
+    /*
+       Display result ON SCALE.
+    */
+
+    setTimeout(
+        function() {
+
+            if (
+                result === "left"
+            ) {
+
+                showScaleResult(
+                    "⚖️ LEFT SIDE IS HEAVIER",
+                    "left"
+                );
+
+            }
+
+            else if (
+                result === "right"
+            ) {
+
+                showScaleResult(
+                    "⚖️ RIGHT SIDE IS HEAVIER",
+                    "right"
+                );
+
+            }
+
+            else {
+
+                showScaleResult(
+                    "⚖️ THE SCALE IS BALANCED",
+                    "equal"
+                );
+
+            }
+
+
+            if (
+                weighingCount >= 2
+            ) {
+
+                document.getElementById(
+                    "status"
+                ).innerText =
+                    "Last weighing used";
+
+            }
+
+        },
+        850
+    );
+
+}
+
+
+/* =========================================================
+   SCALE ANIMATION
+========================================================= */
+
+function animateScale(
+    result
+) {
+
+    if (
+        result === "left"
+    ) {
+
+        beam.style.transform =
+            "translateX(-50%) rotate(7deg)";
+
+    }
+
+    else if (
+        result === "right"
+    ) {
+
+        beam.style.transform =
+            "translateX(-50%) rotate(-7deg)";
+
+    }
+
+    else {
+
+        beam.style.transform =
+            "translateX(-50%) rotate(0deg)";
+
+    }
+
+
+    setTimeout(
+        function() {
+
+            beam.style.transform =
+                "translateX(-50%) rotate(0deg)";
+
+        },
+        1800
+    );
+
+}
+
+
+/* =========================================================
+   SCALE RESULT
+========================================================= */
+
+function showScaleResult(
+    message,
+    type
+) {
+
+    scaleResult.className = "";
+
+    scaleResult.innerText =
+        message;
+
+    scaleResult.classList.add(
+        "show",
+        type
+    );
+
+}
+
+
+/* =========================================================
+   CHECK ANSWER
+========================================================= */
+
+function checkAnswer() {
+
+    if (gameOver) {
+
+        return;
+
+    }
+
+
+    if (
+        !selectedBall
+    ) {
+
+        showScaleResult(
+            "⚠️ Select the ball you think is heavier",
+            "warning"
+        );
+
+        return;
+
+    }
+
+
+    const guess =
+        Number(
+            selectedBall.dataset.id
+        );
+
+
+    if (
+        guess === heavyBall
+    ) {
+
+        gameOver = true;
+
+
+        document.getElementById(
+            "status"
+        ).innerText =
+            "Solved! 🎉";
+
+
+        showSuccess(
+            guess
+        );
+
+    }
+
+    else {
+
+        showScaleResult(
+            "❌ That is not the heavier ball",
+            "warning"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SUCCESS
+========================================================= */
+
+function showSuccess(
+    ballNumber
+) {
+
+    const result =
+        document.getElementById(
+            "result"
+        );
+
+
+    result.className =
+        "success";
+
+
+    result.style.display =
+        "block";
+
+
+    result.innerHTML = `
+
+        🎉 <strong>Congratulations!</strong>
+
+        <br><br>
+
+        You found the heavier ball!
+
+        <br><br>
+
+        🏆 Your answer:
+        <strong>Ball ${ballNumber}</strong>
+
+        <br>
+
+        ⚖️ Weighings used:
+        <strong>${weighingCount}</strong>
+
+        <br><br>
+
+        Excellent deduction! 🧠
+
+    `;
+
+
+    createConfetti();
+
+
+    document.getElementById(
+        "solution"
+    ).style.display =
+        "block";
+
+}
+
+
+/* =========================================================
+   HINT
+========================================================= */
+
+function showHint() {
+
+    const box =
+        document.getElementById(
+            "hintBox"
+        );
+
+
+    hintLevel++;
+
+
+    if (
+        hintLevel === 1
+    ) {
+
+        box.innerHTML = `
+
+            💡 <strong>Hint 1:</strong>
+
+            Divide the 8 balls into
+            groups instead of comparing
+            only two balls.
+
+        `;
+
+    }
+
+    else if (
+        hintLevel === 2
+    ) {
+
+        box.innerHTML = `
+
+            💡 <strong>Hint 2:</strong>
+
+            Try:
+
+            <br><br>
+
+            ⚪ ⚪ ⚪
+
+            &nbsp;
+
+            <strong>VS</strong>
+
+            &nbsp;
+
+            ⚪ ⚪ ⚪
+
+            <br><br>
+
+            Leave two balls aside.
+
+        `;
+
+    }
+
+    else {
+
+        box.innerHTML = `
+
+            💡 <strong>Final Hint:</strong>
+
+            <br><br>
+
+            If the scale balances,
+            the heavy ball is among
+            the two balls left aside.
+
+            <br><br>
+
+            If one side is heavier,
+            the heavy ball is among
+            the three balls on that side.
+
+        `;
+
+    }
+
+
+    box.style.display =
+        "block";
+
+}
+
+
+/* =========================================================
+   SOLUTION
+========================================================= */
+
+function showSolution() {
+
+    document.getElementById(
+        "solution"
+    ).style.display =
+        "block";
+
+}
+
+
+/* =========================================================
+   CONFETTI
+========================================================= */
+
+function createConfetti() {
+
+    const colors = [
+
+        "#f1c40f",
+
+        "#e74c3c",
+
+        "#3498db",
+
+        "#2ecc71",
+
+        "#9b59b6"
+
+    ];
+
+
+    for (
+        let i = 0;
+        i < 80;
+        i++
+    ) {
+
+        const piece =
+            document.createElement(
+                "div"
+            );
+
+
+        piece.className =
+            "confetti";
+
+
+        piece.style.left =
+            Math.random() *
+            100 +
+            "vw";
+
+
+        piece.style.background =
+            colors[
+                Math.floor(
+                    Math.random() *
+                    colors.length
+                )
+            ];
+
+
+        piece.style.animationDelay =
+            Math.random() *
+            0.8 +
+            "s";
+
+
+        document.body.appendChild(
+            piece
+        );
+
+
+        setTimeout(
+            function() {
+
+                piece.remove();
+
+            },
+            3500
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   START
+========================================================= */
+
+window.addEventListener(
+    "load",
+    function() {
+
+        resetGame();
+
+    }
+);
+
+</script>
+
+</body>
+</html>

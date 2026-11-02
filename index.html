@@ -1,0 +1,2419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Blindfolded Coin Puzzle</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(135deg, #eef3f8, #dce5ee);
+    color: #263746;
+    min-height: 100vh;
+    user-select: none;
+}
+
+.container {
+    width: 94%;
+    max-width: 1200px;
+    margin: auto;
+    padding: 25px 0 45px;
+}
+
+/* HEADER */
+
+header {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.2rem;
+    color: #243746;
+}
+
+header p {
+    margin-top: 8px;
+    color: #667784;
+}
+
+/* INSTRUCTIONS */
+
+.instructions {
+    background: white;
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 18px;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+}
+
+.instructions h3 {
+    margin-top: 0;
+}
+
+.instructions p {
+    line-height: 1.5;
+    color: #596b78;
+}
+
+/* CONTROLS */
+
+.controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin: 15px 0;
+}
+
+button {
+    border: none;
+    padding: 11px 17px;
+    border-radius: 8px;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.18s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.08);
+}
+
+.reset {
+    background: #34495e;
+}
+
+.flipA {
+    background: #8e44ad;
+}
+
+.flipB {
+    background: #2980b9;
+}
+
+.flipTable {
+    background: #16a085;
+}
+
+.hint {
+    background: #f39c12;
+}
+
+.check {
+    background: #27ae60;
+}
+
+/* SELECTED COIN CONTROLS */
+
+#selectedActions {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+}
+
+#selectedActions.active {
+    display: flex;
+}
+
+.selectedText {
+    background: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    font-weight: bold;
+}
+
+.moveA {
+    background: #e84393;
+}
+
+.moveB {
+    background: #2980b9;
+}
+
+.flipSelected {
+    background: #9b59b6;
+}
+
+/* COUNTERS */
+
+.stats {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 15px 0 18px;
+}
+
+.stat {
+    background: white;
+    min-width: 145px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.stat span {
+    font-size: 1.15rem;
+    display: inline-block;
+    margin-top: 3px;
+}
+
+/* TABLE */
+
+.table-wrapper {
+    padding: 10px;
+    background: #5a3b2e;
+    border-radius: 20px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+}
+
+#table {
+    height: 450px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+
+    background:
+        radial-gradient(
+            circle at 50% 40%,
+            rgba(255,255,255,0.08),
+            transparent 55%
+        ),
+        #24752c;
+}
+
+.table-title {
+    position: absolute;
+    top: 12px;
+    width: 100%;
+    text-align: center;
+    color: rgba(255,255,255,0.9);
+    font-size: 0.9rem;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* COINS */
+
+.coin {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    position: absolute;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    cursor: grab;
+    touch-action: none;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #fff8b5,
+            #f6c51b 45%,
+            #d99e00 75%,
+            #a86f00
+        );
+
+    border: 4px solid #e2b313;
+
+    box-shadow:
+        0 7px 12px rgba(0,0,0,0.42),
+        inset 0 2px 4px rgba(255,255,255,0.7);
+
+    transition:
+        transform 0.15s,
+        box-shadow 0.15s;
+}
+
+.coin::before {
+    content: "🪙";
+    font-size: 28px;
+}
+
+.coin:hover {
+    transform: scale(1.06);
+}
+
+/* SELECTED */
+
+.coin.selected {
+    transform: scale(1.16);
+
+    box-shadow:
+        0 0 0 4px rgba(52,152,219,0.55),
+        0 12px 22px rgba(0,0,0,0.45);
+
+    z-index: 9999 !important;
+}
+
+/* DRAGGING */
+
+.coin.dragging {
+    opacity: 0.82;
+    transform: scale(1.12);
+    z-index: 10000 !important;
+}
+
+/* GROUPS */
+
+.groups {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.group {
+    background: white;
+    border: 3px dashed #b9c4cd;
+    border-radius: 14px;
+    min-height: 250px;
+    padding: 15px;
+    transition: 0.2s;
+}
+
+.group.drag-over {
+    border-color: #3498db;
+    background: #eef8ff;
+    transform: scale(1.01);
+}
+
+.group-header {
+    text-align: center;
+}
+
+.group-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.group-header p {
+    margin: 5px 0 10px;
+    color: #7b8790;
+    font-size: 0.85rem;
+}
+
+.group-coins {
+    min-height: 175px;
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: flex-start;
+
+    gap: 10px;
+    padding: 10px;
+
+    border-radius: 10px;
+}
+
+/*
+   Coins become normal flex items
+   when they are inside groups.
+*/
+
+.group-coins .coin {
+    position: relative;
+    left: auto !important;
+    top: auto !important;
+    flex-shrink: 0;
+}
+
+/* HINT */
+
+#hintBox {
+    display: none;
+
+    margin-top: 18px;
+    padding: 17px;
+
+    background: #fff8e7;
+    border-left: 5px solid #f39c12;
+
+    border-radius: 9px;
+    line-height: 1.5;
+    text-align: left;
+}
+
+/* RESULT */
+
+#result {
+    display: none;
+
+    margin-top: 18px;
+    padding: 20px;
+
+    border-radius: 12px;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.success {
+    background: #eafaf1;
+    border: 2px solid #27ae60;
+    color: #196f3d;
+}
+
+.failure {
+    background: #fdedec;
+    border: 2px solid #e74c3c;
+    color: #922b21;
+}
+
+/* SOLUTION */
+
+#solution {
+    display: none;
+
+    background: white;
+    margin-top: 18px;
+    padding: 22px;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 5px 18px rgba(0,0,0,0.08);
+
+    text-align: left;
+    line-height: 1.6;
+}
+
+#solution h3 {
+    margin-top: 0;
+}
+
+#solution h4 {
+    margin-bottom: 5px;
+}
+
+/* FLIP ANIMATION */
+
+@keyframes coinFlip {
+    0% {
+        transform: rotateY(0deg);
+    }
+
+    50% {
+        transform:
+            rotateY(180deg)
+            scale(1.08);
+    }
+
+    100% {
+        transform: rotateY(360deg);
+    }
+}
+
+.flipping {
+    animation:
+        coinFlip
+        0.55s
+        ease;
+}
+
+/* CONFETTI */
+
+.confetti {
+    position: fixed;
+    width: 8px;
+    height: 14px;
+    top: -20px;
+    z-index: 10000;
+
+    animation:
+        fall
+        2.5s
+        linear
+        forwards;
+}
+
+@keyframes fall {
+    to {
+        transform:
+            translateY(110vh)
+            rotate(720deg);
+
+        opacity: 0;
+    }
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+
+    .container {
+        width: 96%;
+    }
+
+    header h1 {
+        font-size: 1.7rem;
+    }
+
+    #table {
+        height: 430px;
+    }
+
+    .groups {
+        grid-template-columns: 1fr;
+    }
+
+    .coin {
+        width: 55px;
+        height: 55px;
+    }
+
+    .coin::before {
+        font-size: 24px;
+    }
+
+    button {
+        padding: 10px 13px;
+        font-size: 0.82rem;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+
+    <h1>🪙 Blindfolded Coin Puzzle</h1>
+
+    <p>
+        Divide the coins into two groups
+        containing the same number of Heads.
+    </p>
+
+</header>
+
+
+<!-- =====================================================
+     INSTRUCTIONS
+===================================================== -->
+
+<div class="instructions">
+
+    <h3>🧠 Your Challenge</h3>
+
+    <p>
+        There are <strong>10 coins</strong> on the table.
+        Exactly <strong>1 coin is Heads-up</strong>
+        and <strong>9 coins are Tails-up</strong>.
+    </p>
+
+    <p>
+        You are <strong>blindfolded</strong>,
+        so you cannot tell which side any coin is showing.
+    </p>
+
+    <p>
+        Your goal is to divide all 10 coins into
+        <strong>Group A</strong> and <strong>Group B</strong>
+        so that both groups contain the same number of Heads.
+    </p>
+
+    <p>
+        🖱️ <strong>Click</strong> a coin to select it.
+        <br>
+        ✋ <strong>Drag</strong> coins around the table
+        or directly into Group A / Group B.
+        <br>
+        🔄 <strong>Double-click</strong> any coin to flip it.
+    </p>
+
+</div>
+
+
+<!-- =====================================================
+     MAIN BUTTONS
+===================================================== -->
+
+<div class="controls">
+
+    <button
+        class="reset"
+        onclick="resetPuzzle()">
+        🔄 Reset Puzzle
+    </button>
+
+    <button
+        class="flipA"
+        onclick="flipGroup('A')">
+        🔄 Flip Group A
+    </button>
+
+    <button
+        class="flipB"
+        onclick="flipGroup('B')">
+        🔄 Flip Group B
+    </button>
+
+    <button
+        class="flipTable"
+        onclick="flipTableCoins()">
+        🔄 Flip Table Coins
+    </button>
+
+    <button
+        class="hint"
+        onclick="showHint()">
+        💡 Hint
+    </button>
+
+    <button
+        class="check"
+        onclick="checkSolution()">
+        ✅ Check Solution
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+     SELECTED COIN BUTTONS
+===================================================== -->
+
+<div id="selectedActions">
+
+    <div class="selectedText">
+        🪙 Coin Selected
+    </div>
+
+    <button
+        class="moveA"
+        onclick="moveSelectedTo('A')">
+        🅰️ Move to Group A
+    </button>
+
+    <button
+        class="moveB"
+        onclick="moveSelectedTo('B')">
+        🅱️ Move to Group B
+    </button>
+
+    <button
+        class="flipSelected"
+        onclick="flipSelectedCoin()">
+        🔄 Flip Selected Coin
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+     COUNTERS
+===================================================== -->
+
+<div class="stats">
+
+    <div class="stat">
+        🪙 On Table
+        <br>
+        <span id="tableCount">10</span>
+    </div>
+
+    <div class="stat">
+        🅰️ Group A
+        <br>
+        <span id="groupACount">0</span>
+    </div>
+
+    <div class="stat">
+        🅱️ Group B
+        <br>
+        <span id="groupBCount">0</span>
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     TABLE
+===================================================== -->
+
+<div class="table-wrapper">
+
+    <div id="table">
+
+        <div class="table-title">
+            🖱️ Click to select • ✋ Drag coins anywhere
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     GROUPS
+===================================================== -->
+
+<div class="groups">
+
+    <div
+        class="group"
+        id="groupA">
+
+        <div class="group-header">
+
+            <h2>🅰️ GROUP A</h2>
+
+            <p>
+                Drop coins here
+            </p>
+
+        </div>
+
+        <div
+            class="group-coins"
+            id="groupACoins">
+        </div>
+
+    </div>
+
+
+    <div
+        class="group"
+        id="groupB">
+
+        <div class="group-header">
+
+            <h2>🅱️ GROUP B</h2>
+
+            <p>
+                Drop coins here
+            </p>
+
+        </div>
+
+        <div
+            class="group-coins"
+            id="groupBCoins">
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     HINT
+===================================================== -->
+
+<div id="hintBox"></div>
+
+
+<!-- =====================================================
+     RESULT
+===================================================== -->
+
+<div id="result"></div>
+
+
+<!-- =====================================================
+     SOLUTION
+===================================================== -->
+
+<div id="solution">
+
+    <h3>🧠 Why the Solution Works</h3>
+
+    <p>
+        In this 10-coin demonstration,
+        there is exactly <strong>1 Head</strong>
+        and <strong>9 Tails</strong>.
+    </p>
+
+    <h4>Step 1</h4>
+
+    <p>
+        Choose <strong>any one coin</strong>
+        and put it in Group A.
+    </p>
+
+    <h4>Step 2</h4>
+
+    <p>
+        Put the remaining 9 coins in Group B.
+    </p>
+
+    <h4>Step 3</h4>
+
+    <p>
+        Flip the single coin in Group A.
+    </p>
+
+    <h4>Why?</h4>
+
+    <p>
+        If the selected coin was the Head,
+        flipping it changes it into a Tail.
+        Both groups then have 0 Heads.
+    </p>
+
+    <p>
+        If the selected coin was a Tail,
+        flipping it changes it into a Head.
+        The original Head is in Group B.
+        Therefore both groups have 1 Head.
+    </p>
+
+    <hr>
+
+    <h3>🌎 Original 100-Coin Puzzle</h3>
+
+    <p>
+        The original puzzle contains
+        <strong>100 coins</strong>:
+        <strong>10 Heads</strong> and
+        <strong>90 Tails</strong>.
+    </p>
+
+    <p>
+        Choose any <strong>10 coins</strong>
+        and put them in Group A.
+        Put the remaining 90 coins in Group B.
+    </p>
+
+    <p>
+        Now flip every coin in Group A.
+    </p>
+
+    <p>
+        Suppose the 10 selected coins originally
+        contained <strong>X Heads</strong>.
+        After flipping them, Group A contains
+        <strong>10 − X Heads</strong>.
+    </p>
+
+    <p>
+        Since there were originally 10 Heads total,
+        Group B also contains
+        <strong>10 − X Heads</strong>.
+    </p>
+
+    <p>
+        Therefore both groups contain the
+        <strong>same number of Heads</strong>.
+    </p>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   GAME VARIABLES
+===================================================== */
+
+const TOTAL_COINS = 10;
+
+const table =
+    document.getElementById("table");
+
+const groupA =
+    document.getElementById("groupA");
+
+const groupB =
+    document.getElementById("groupB");
+
+const groupACoins =
+    document.getElementById("groupACoins");
+
+const groupBCoins =
+    document.getElementById("groupBCoins");
+
+let selectedCoin = null;
+
+let hintLevel = 0;
+
+
+/* =====================================================
+   RESET PUZZLE
+===================================================== */
+
+function resetPuzzle() {
+
+    /*
+       Remove old coins.
+    */
+
+    document
+        .querySelectorAll(".coin")
+        .forEach(
+            coin => coin.remove()
+        );
+
+
+    /*
+       Empty groups.
+    */
+
+    groupACoins.innerHTML = "";
+
+    groupBCoins.innerHTML = "";
+
+
+    /*
+       Clear selection.
+    */
+
+    selectedCoin = null;
+
+    updateSelectedUI();
+
+
+    /*
+       Hide messages.
+    */
+
+    document.getElementById("hintBox").style.display =
+        "none";
+
+    document.getElementById("result").style.display =
+        "none";
+
+    document.getElementById("solution").style.display =
+        "none";
+
+
+    hintLevel = 0;
+
+
+    /*
+       EXACTLY 1 HEAD + 9 TAILS.
+    */
+
+    const states = [
+        "head",
+        "tail",
+        "tail",
+        "tail",
+        "tail",
+        "tail",
+        "tail",
+        "tail",
+        "tail",
+        "tail"
+    ];
+
+
+    /*
+       Randomize the hidden Head.
+    */
+
+    shuffle(states);
+
+
+    /*
+       Create all coins.
+    */
+
+    states.forEach(
+        (state, index) => {
+
+            createCoin(
+                index,
+                state
+            );
+
+        }
+    );
+
+
+    updateCounters();
+
+}
+
+
+/* =====================================================
+   SHUFFLE
+===================================================== */
+
+function shuffle(array) {
+
+    for (
+        let i = array.length - 1;
+        i > 0;
+        i--
+    ) {
+
+        const j =
+            Math.floor(
+                Math.random() * (i + 1)
+            );
+
+        [
+            array[i],
+            array[j]
+        ] =
+        [
+            array[j],
+            array[i]
+        ];
+
+    }
+
+}
+
+
+/* =====================================================
+   CREATE COIN
+===================================================== */
+
+function createCoin(id, state) {
+
+    const coin =
+        document.createElement("div");
+
+
+    coin.className =
+        "coin";
+
+
+    /*
+       Hidden ID.
+    */
+
+    coin.dataset.id =
+        id;
+
+
+    /*
+       Hidden Head/Tail state.
+
+       The user never sees this.
+    */
+
+    coin.dataset.state =
+        state;
+
+
+    /*
+       Random position.
+    */
+
+    const coinSize = 62;
+
+    const maxX =
+        table.clientWidth -
+        coinSize -
+        10;
+
+    const maxY =
+        table.clientHeight -
+        coinSize -
+        10;
+
+
+    const x =
+        Math.max(
+            10,
+            Math.random() *
+            Math.max(20, maxX)
+        );
+
+
+    const y =
+        45 +
+        Math.random() *
+        Math.max(
+            20,
+            maxY - 45
+        );
+
+
+    coin.style.left =
+        `${x}px`;
+
+    coin.style.top =
+        `${y}px`;
+
+
+    /*
+       Put coin on table.
+    */
+
+    table.appendChild(
+        coin
+    );
+
+
+    /*
+       SINGLE CLICK = SELECT
+    */
+
+    coin.addEventListener(
+        "click",
+        function(e) {
+
+            e.stopPropagation();
+
+            selectCoin(
+                coin
+            );
+
+        }
+    );
+
+
+    /*
+       DOUBLE CLICK = FLIP
+
+       This works on:
+
+       Table
+       Group A
+       Group B
+    */
+
+    coin.addEventListener(
+        "dblclick",
+        function(e) {
+
+            e.preventDefault();
+
+            e.stopPropagation();
+
+            flipCoin(
+                coin
+            );
+
+        }
+    );
+
+
+    /*
+       Enable dragging.
+    */
+
+    enableDragging(
+        coin
+    );
+
+}
+
+
+/* =====================================================
+   SELECT COIN
+===================================================== */
+
+function selectCoin(coin) {
+
+    /*
+       Remove old selection.
+    */
+
+    document
+        .querySelectorAll(
+            ".coin.selected"
+        )
+        .forEach(
+            c =>
+                c.classList.remove(
+                    "selected"
+                )
+        );
+
+
+    /*
+       Select new coin.
+    */
+
+    selectedCoin =
+        coin;
+
+
+    coin.classList.add(
+        "selected"
+    );
+
+
+    updateSelectedUI();
+
+}
+
+
+/* =====================================================
+   SELECTED COIN UI
+===================================================== */
+
+function updateSelectedUI() {
+
+    const actions =
+        document.getElementById(
+            "selectedActions"
+        );
+
+
+    if (selectedCoin) {
+
+        actions.classList.add(
+            "active"
+        );
+
+    } else {
+
+        actions.classList.remove(
+            "active"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   DESELECT
+===================================================== */
+
+function deselectCoin() {
+
+    if (selectedCoin) {
+
+        selectedCoin.classList.remove(
+            "selected"
+        );
+
+    }
+
+    selectedCoin = null;
+
+    updateSelectedUI();
+
+}
+
+
+/* =====================================================
+   MOVE SELECTED COIN
+===================================================== */
+
+function moveSelectedTo(destination) {
+
+    if (!selectedCoin) {
+
+        return;
+
+    }
+
+
+    if (destination === "A") {
+
+        moveCoinToGroup(
+            selectedCoin,
+            groupACoins
+        );
+
+    }
+
+
+    if (destination === "B") {
+
+        moveCoinToGroup(
+            selectedCoin,
+            groupBCoins
+        );
+
+    }
+
+
+    deselectCoin();
+
+    updateCounters();
+
+}
+
+
+/* =====================================================
+   MOVE COIN INTO GROUP
+===================================================== */
+
+function moveCoinToGroup(
+    coin,
+    groupContainer
+) {
+
+    groupContainer.appendChild(
+        coin
+    );
+
+
+    /*
+       Reset table positioning.
+
+       Flexbox handles the coin now.
+    */
+
+    coin.style.left = "";
+
+    coin.style.top = "";
+
+    coin.style.zIndex = "";
+
+    coin.classList.remove(
+        "dragging"
+    );
+
+}
+
+
+/* =====================================================
+   FLIP SELECTED COIN
+===================================================== */
+
+function flipSelectedCoin() {
+
+    if (!selectedCoin) {
+
+        return;
+
+    }
+
+    flipCoin(
+        selectedCoin
+    );
+
+}
+
+
+/* =====================================================
+   FLIP INDIVIDUAL COIN
+===================================================== */
+
+function flipCoin(coin) {
+
+    /*
+       Change hidden state.
+
+       HEAD -> TAIL
+       TAIL -> HEAD
+    */
+
+    if (
+        coin.dataset.state === "head"
+    ) {
+
+        coin.dataset.state =
+            "tail";
+
+    } else {
+
+        coin.dataset.state =
+            "head";
+
+    }
+
+
+    /*
+       Visual animation.
+
+       The appearance remains
+       identical so the user
+       cannot determine the side.
+    */
+
+    coin.classList.remove(
+        "flipping"
+    );
+
+
+    void coin.offsetWidth;
+
+
+    coin.classList.add(
+        "flipping"
+    );
+
+
+    setTimeout(
+        () => {
+
+            coin.classList.remove(
+                "flipping"
+            );
+
+        },
+        600
+    );
+
+}
+
+
+/* =====================================================
+   FLIP GROUP A / B
+===================================================== */
+
+function flipGroup(group) {
+
+    let container;
+
+
+    if (group === "A") {
+
+        container =
+            groupACoins;
+
+    } else {
+
+        container =
+            groupBCoins;
+
+    }
+
+
+    const coins =
+        [
+            ...container.querySelectorAll(
+                ".coin"
+            )
+        ];
+
+
+    if (coins.length === 0) {
+
+        showResult(
+            `⚠️ Group ${group} is empty.`,
+            "failure"
+        );
+
+        return;
+
+    }
+
+
+    coins.forEach(
+        (coin, index) => {
+
+            setTimeout(
+                () => {
+
+                    flipCoin(
+                        coin
+                    );
+
+                },
+                index * 80
+            );
+
+        }
+    );
+
+
+    showResult(
+        `🔄 All coins in Group ${group} have been flipped.`,
+        "success"
+    );
+
+}
+
+
+/* =====================================================
+   FLIP TABLE COINS
+===================================================== */
+
+function flipTableCoins() {
+
+    const coins =
+        [
+            ...table.querySelectorAll(
+                ".coin"
+            )
+        ];
+
+
+    if (coins.length === 0) {
+
+        showResult(
+            "⚠️ There are no coins remaining on the table.",
+            "failure"
+        );
+
+        return;
+
+    }
+
+
+    coins.forEach(
+        (coin, index) => {
+
+            setTimeout(
+                () => {
+
+                    flipCoin(
+                        coin
+                    );
+
+                },
+                index * 80
+            );
+
+        }
+    );
+
+
+    showResult(
+        "🔄 All coins on the table have been flipped.",
+        "success"
+    );
+
+}
+
+
+/* =====================================================
+   FIXED DRAGGING SYSTEM
+===================================================== */
+
+function enableDragging(coin) {
+
+    let pointerDown = false;
+
+    let isDragging = false;
+
+    let startX = 0;
+
+    let startY = 0;
+
+    let startLeft = 0;
+
+    let startTop = 0;
+
+    let originalParent = null;
+
+    const DRAG_THRESHOLD = 6;
+
+
+    /* =================================================
+       POINTER DOWN
+    ================================================= */
+
+    coin.addEventListener(
+        "pointerdown",
+        function(e) {
+
+            /*
+               Only accept left mouse button.
+            */
+
+            if (
+                e.pointerType === "mouse" &&
+                e.button !== 0
+            ) {
+
+                return;
+
+            }
+
+
+            e.preventDefault();
+
+
+            pointerDown = true;
+
+            isDragging = false;
+
+
+            startX =
+                e.clientX;
+
+            startY =
+                e.clientY;
+
+
+            originalParent =
+                coin.parentElement;
+
+
+            /*
+               If already on table,
+               remember its position.
+            */
+
+            if (
+                originalParent === table
+            ) {
+
+                startLeft =
+                    parseFloat(
+                        coin.style.left
+                    ) || 0;
+
+                startTop =
+                    parseFloat(
+                        coin.style.top
+                    ) || 0;
+
+            }
+
+
+            /*
+               Important:
+
+               If the coin is inside Group A/B,
+               we DO NOT move it yet.
+
+               We wait to see whether the
+               user is actually dragging.
+            */
+
+            coin.setPointerCapture(
+                e.pointerId
+            );
+
+        }
+    );
+
+
+    /* =================================================
+       POINTER MOVE
+    ================================================= */
+
+    coin.addEventListener(
+        "pointermove",
+        function(e) {
+
+            if (!pointerDown) {
+
+                return;
+
+            }
+
+
+            const deltaX =
+                e.clientX -
+                startX;
+
+
+            const deltaY =
+                e.clientY -
+                startY;
+
+
+            const distance =
+                Math.sqrt(
+                    deltaX * deltaX +
+                    deltaY * deltaY
+                );
+
+
+            /*
+               If the pointer has moved
+               less than 6px, treat it
+               as a normal click.
+            */
+
+            if (
+                !isDragging &&
+                distance <
+                DRAG_THRESHOLD
+            ) {
+
+                return;
+
+            }
+
+
+            /*
+               REAL DRAG STARTS
+            */
+
+            if (!isDragging) {
+
+                isDragging = true;
+
+
+                coin.classList.add(
+                    "dragging"
+                );
+
+
+                /*
+                   Automatically select
+                   the dragged coin.
+                */
+
+                selectCoin(
+                    coin
+                );
+
+
+                /*
+                   If coin came from
+                   Group A/B, move it
+                   to the table NOW.
+
+                   Not during click.
+                */
+
+                if (
+                    originalParent === groupACoins ||
+                    originalParent === groupBCoins
+                ) {
+
+                    const rect =
+                        coin.getBoundingClientRect();
+
+                    const tableRect =
+                        table.getBoundingClientRect();
+
+
+                    startLeft =
+                        rect.left -
+                        tableRect.left;
+
+                    startTop =
+                        rect.top -
+                        tableRect.top;
+
+
+                    table.appendChild(
+                        coin
+                    );
+
+
+                    coin.style.left =
+                        `${startLeft}px`;
+
+                    coin.style.top =
+                        `${startTop}px`;
+
+                }
+
+            }
+
+
+            e.preventDefault();
+
+
+            /*
+               Calculate new position.
+            */
+
+            let newX =
+                startLeft +
+                (e.clientX - startX);
+
+
+            let newY =
+                startTop +
+                (e.clientY - startY);
+
+
+            /*
+               Keep coin inside table.
+            */
+
+            const maxX =
+                table.clientWidth -
+                coin.offsetWidth;
+
+
+            const maxY =
+                table.clientHeight -
+                coin.offsetHeight;
+
+
+            newX =
+                Math.max(
+                    0,
+                    Math.min(
+                        newX,
+                        maxX
+                    )
+                );
+
+
+            newY =
+                Math.max(
+                    35,
+                    Math.min(
+                        newY,
+                        maxY
+                    )
+                );
+
+
+            coin.style.left =
+                `${newX}px`;
+
+            coin.style.top =
+                `${newY}px`;
+
+
+            highlightDropZone();
+
+        }
+    );
+
+
+    /* =================================================
+       POINTER UP
+    ================================================= */
+
+    coin.addEventListener(
+        "pointerup",
+        function(e) {
+
+            if (!pointerDown) {
+
+                return;
+
+            }
+
+
+            pointerDown = false;
+
+
+            /*
+               NORMAL CLICK
+
+               Do NOT move the coin.
+            */
+
+            if (!isDragging) {
+
+                selectCoin(
+                    coin
+                );
+
+                return;
+
+            }
+
+
+            /*
+               DRAG FINISHED
+            */
+
+            isDragging = false;
+
+
+            coin.classList.remove(
+                "dragging"
+            );
+
+
+            removeDropHighlights();
+
+
+            /*
+               Find where pointer
+               was released.
+            */
+
+            const target =
+                document.elementFromPoint(
+                    e.clientX,
+                    e.clientY
+                );
+
+
+            /*
+               GROUP A
+            */
+
+            if (
+                target &&
+                target.closest(
+                    "#groupA"
+                )
+            ) {
+
+                moveCoinToGroup(
+                    coin,
+                    groupACoins
+                );
+
+                deselectCoin();
+
+            }
+
+
+            /*
+               GROUP B
+            */
+
+            else if (
+                target &&
+                target.closest(
+                    "#groupB"
+                )
+            ) {
+
+                moveCoinToGroup(
+                    coin,
+                    groupBCoins
+                );
+
+                deselectCoin();
+
+            }
+
+
+            /*
+               Otherwise:
+
+               Coin stays on table.
+            */
+
+            updateCounters();
+
+        }
+    );
+
+
+    /* =================================================
+       POINTER CANCEL
+    ================================================= */
+
+    coin.addEventListener(
+        "pointercancel",
+        function() {
+
+            pointerDown = false;
+
+            isDragging = false;
+
+            coin.classList.remove(
+                "dragging"
+            );
+
+            removeDropHighlights();
+
+            updateCounters();
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   DROP ZONE HIGHLIGHT
+===================================================== */
+
+function highlightDropZone() {
+
+    removeDropHighlights();
+
+
+    if (!selectedCoin) {
+
+        return;
+
+    }
+
+
+    const rect =
+        selectedCoin.getBoundingClientRect();
+
+
+    const centerX =
+        rect.left +
+        rect.width / 2;
+
+
+    const centerY =
+        rect.top +
+        rect.height / 2;
+
+
+    const element =
+        document.elementFromPoint(
+            centerX,
+            centerY
+        );
+
+
+    if (
+        element &&
+        element.closest(
+            "#groupA"
+        )
+    ) {
+
+        groupA.classList.add(
+            "drag-over"
+        );
+
+    }
+
+
+    if (
+        element &&
+        element.closest(
+            "#groupB"
+        )
+    ) {
+
+        groupB.classList.add(
+            "drag-over"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   REMOVE HIGHLIGHT
+===================================================== */
+
+function removeDropHighlights() {
+
+    groupA.classList.remove(
+        "drag-over"
+    );
+
+    groupB.classList.remove(
+        "drag-over"
+    );
+
+}
+
+
+/* =====================================================
+   UPDATE COUNTERS
+===================================================== */
+
+function updateCounters() {
+
+    const tableCount =
+        table.querySelectorAll(
+            ".coin"
+        ).length;
+
+
+    const aCount =
+        groupACoins.querySelectorAll(
+            ".coin"
+        ).length;
+
+
+    const bCount =
+        groupBCoins.querySelectorAll(
+            ".coin"
+        ).length;
+
+
+    document.getElementById(
+        "tableCount"
+    ).innerText =
+        tableCount;
+
+
+    document.getElementById(
+        "groupACount"
+    ).innerText =
+        aCount;
+
+
+    document.getElementById(
+        "groupBCount"
+    ).innerText =
+        bCount;
+
+}
+
+
+/* =====================================================
+   CHECK SOLUTION
+===================================================== */
+
+function checkSolution() {
+
+    const coinsA =
+        [
+            ...groupACoins.querySelectorAll(
+                ".coin"
+            )
+        ];
+
+
+    const coinsB =
+        [
+            ...groupBCoins.querySelectorAll(
+                ".coin"
+            )
+        ];
+
+
+    /*
+       All 10 coins must be
+       inside the two groups.
+    */
+
+    if (
+        coinsA.length +
+        coinsB.length !==
+        TOTAL_COINS
+    ) {
+
+        showResult(
+            "❌ Please divide all 10 coins between Group A and Group B.",
+            "failure"
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Both groups need coins.
+    */
+
+    if (
+        coinsA.length === 0 ||
+        coinsB.length === 0
+    ) {
+
+        showResult(
+            "❌ Both groups must contain at least one coin.",
+            "failure"
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Count hidden Heads.
+    */
+
+    const headsA =
+        coinsA.filter(
+            coin =>
+                coin.dataset.state ===
+                "head"
+        ).length;
+
+
+    const headsB =
+        coinsB.filter(
+            coin =>
+                coin.dataset.state ===
+                "head"
+        ).length;
+
+
+    /*
+       Compare.
+    */
+
+    if (
+        headsA === headsB
+    ) {
+
+        showSuccess();
+
+    } else {
+
+        showResult(
+            "❌ Not quite! The two groups do not contain the same number of Heads.",
+            "failure"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   SUCCESS
+===================================================== */
+
+function showSuccess() {
+
+    const result =
+        document.getElementById(
+            "result"
+        );
+
+
+    result.className =
+        "success";
+
+
+    result.style.display =
+        "block";
+
+
+    result.innerHTML = `
+
+        🎉 <strong>Puzzle Solved!</strong>
+
+        <br><br>
+
+        Excellent work!
+
+        <br>
+
+        Both groups contain the same
+        number of Heads.
+
+        <br><br>
+
+        🧠 You solved it without knowing
+        which coin was originally Heads-up.
+
+    `;
+
+
+    document.getElementById(
+        "solution"
+    ).style.display =
+        "block";
+
+
+    createConfetti();
+
+}
+
+
+/* =====================================================
+   SHOW RESULT
+===================================================== */
+
+function showResult(
+    message,
+    type
+) {
+
+    const result =
+        document.getElementById(
+            "result"
+        );
+
+
+    result.className =
+        type;
+
+
+    result.style.display =
+        "block";
+
+
+    result.innerHTML =
+        message;
+
+}
+
+
+/* =====================================================
+   HINT
+===================================================== */
+
+function showHint() {
+
+    const box =
+        document.getElementById(
+            "hintBox"
+        );
+
+
+    hintLevel++;
+
+
+    if (
+        hintLevel === 1
+    ) {
+
+        box.innerHTML = `
+
+            💡 <strong>Hint 1:</strong>
+
+            You do not need to know
+            which coin is the Head.
+
+        `;
+
+    }
+
+
+    else if (
+        hintLevel === 2
+    ) {
+
+        box.innerHTML = `
+
+            💡 <strong>Hint 2:</strong>
+
+            Think about selecting a
+            specific number of coins,
+            regardless of which side
+            they are showing.
+
+        `;
+
+    }
+
+
+    else if (
+        hintLevel === 3
+    ) {
+
+        box.innerHTML = `
+
+            💡 <strong>Hint 3:</strong>
+
+            For this 10-coin version,
+            try putting exactly
+            <strong>1 coin</strong>
+            into Group A.
+
+        `;
+
+    }
+
+
+    else {
+
+        box.innerHTML = `
+
+            💡 <strong>Final Hint:</strong>
+
+            <br><br>
+
+            Choose any one coin.
+
+            <br><br>
+
+            Put it in Group A.
+
+            <br><br>
+
+            Put the other 9 coins
+            in Group B.
+
+            <br><br>
+
+            Finally, flip the coin
+            in Group A.
+
+        `;
+
+    }
+
+
+    box.style.display =
+        "block";
+
+}
+
+
+/* =====================================================
+   CONFETTI
+===================================================== */
+
+function createConfetti() {
+
+    for (
+        let i = 0;
+        i < 70;
+        i++
+    ) {
+
+        const piece =
+            document.createElement(
+                "div"
+            );
+
+
+        piece.className =
+            "confetti";
+
+
+        piece.style.left =
+            Math.random() *
+            100 +
+            "vw";
+
+
+        piece.style.animationDelay =
+            Math.random() *
+            0.8 +
+            "s";
+
+
+        const colors = [
+            "#f1c40f",
+            "#e74c3c",
+            "#3498db",
+            "#2ecc71",
+            "#9b59b6"
+        ];
+
+
+        piece.style.background =
+            colors[
+                Math.floor(
+                    Math.random() *
+                    colors.length
+                )
+            ];
+
+
+        document.body.appendChild(
+            piece
+        );
+
+
+        setTimeout(
+            () => {
+
+                piece.remove();
+
+            },
+            3500
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+window.addEventListener(
+    "load",
+    function() {
+
+        resetPuzzle();
+
+    }
+);
+
+</script>
+
+</body>
+</html>

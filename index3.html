@@ -1,0 +1,2532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Water Jug Puzzle</title>
+
+<style>
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+
+    background:
+        linear-gradient(135deg, #eaf6ff, #d8ecf8);
+
+    color: #263746;
+
+    min-height: 100vh;
+
+    user-select: none;
+}
+
+.container {
+    width: 94%;
+    max-width: 1100px;
+
+    margin: auto;
+
+    padding: 25px 0 50px;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    margin: 0;
+
+    font-size: 2.3rem;
+
+    color: #174a68;
+}
+
+header p {
+    color: #607d8b;
+
+    margin-top: 8px;
+
+    font-size: 1rem;
+}
+
+
+/* =========================================================
+   INSTRUCTIONS
+========================================================= */
+
+.instructions {
+    background: white;
+
+    padding: 20px;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 6px 20px rgba(0,0,0,0.08);
+
+    margin-bottom: 18px;
+}
+
+.instructions h2 {
+    margin-top: 0;
+
+    color: #176087;
+}
+
+.instructions p {
+    line-height: 1.6;
+
+    color: #596b78;
+}
+
+.goal {
+    display: inline-block;
+
+    background: #e8f8ff;
+
+    border-left:
+        5px solid #2196f3;
+
+    padding: 12px 16px;
+
+    border-radius: 7px;
+
+    font-weight: bold;
+
+    color: #176087;
+}
+
+
+/* =========================================================
+   CONTROLS
+========================================================= */
+
+.controls {
+    display: flex;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin: 15px 0;
+}
+
+button {
+    border: none;
+
+    border-radius: 8px;
+
+    padding: 11px 18px;
+
+    font-size: 0.92rem;
+
+    font-weight: bold;
+
+    color: white;
+
+    cursor: pointer;
+
+    transition:
+        transform .18s,
+        filter .18s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+
+    filter: brightness(1.08);
+}
+
+.reset {
+    background: #34495e;
+}
+
+.hint {
+    background: #f39c12;
+}
+
+.check {
+    background: #27ae60;
+}
+
+.solution {
+    background: #8e44ad;
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.stats {
+    display: flex;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin: 18px 0;
+}
+
+.stat {
+    background: white;
+
+    min-width: 160px;
+
+    padding: 12px 20px;
+
+    border-radius: 10px;
+
+    text-align: center;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 4px 15px rgba(0,0,0,0.07);
+}
+
+.stat span {
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 1.2rem;
+
+    color: #1976a8;
+}
+
+
+/* =========================================================
+   PUZZLE AREA
+========================================================= */
+
+.puzzle-area {
+    background: white;
+
+    border-radius: 18px;
+
+    padding: 25px;
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,0.1);
+}
+
+.puzzle-title {
+    text-align: center;
+
+    margin-bottom: 15px;
+}
+
+.puzzle-title h2 {
+    margin: 0;
+
+    color: #24566f;
+}
+
+.puzzle-title p {
+    color: #78909c;
+}
+
+
+/* =========================================================
+   JUG AREA
+========================================================= */
+
+.jugs-area {
+    min-height: 430px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: flex-end;
+
+    gap: 90px;
+
+    padding: 30px 20px;
+
+    position: relative;
+}
+
+
+/* =========================================================
+   JUG WRAPPER
+========================================================= */
+
+.jug-wrapper {
+    width: 230px;
+
+    text-align: center;
+
+    position: relative;
+}
+
+.jug-label {
+    font-size: 1.25rem;
+
+    font-weight: bold;
+
+    color: #345;
+
+    margin-bottom: 10px;
+}
+
+
+/* =========================================================
+   JUG
+========================================================= */
+
+.jug {
+    width: 190px;
+
+    height: 300px;
+
+    margin: auto;
+
+    position: relative;
+
+    border:
+        6px solid #607d8b;
+
+    border-top:
+        8px solid #607d8b;
+
+    border-radius:
+        10px 10px 35px 35px;
+
+    background:
+        linear-gradient(
+            to right,
+            rgba(255,255,255,.75),
+            rgba(220,240,250,.65),
+            rgba(255,255,255,.75)
+        );
+
+    overflow: hidden;
+
+    box-shadow:
+        inset 0 0 15px rgba(0,0,0,.12),
+        0 8px 15px rgba(0,0,0,.15);
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   JUG HANDLE
+========================================================= */
+
+.handle {
+    position: absolute;
+
+    right: -55px;
+
+    top: 55px;
+
+    width: 65px;
+
+    height: 160px;
+
+    border:
+        13px solid #607d8b;
+
+    border-left: none;
+
+    border-radius:
+        0 50px 50px 0;
+
+    z-index: -1;
+}
+
+
+/* =========================================================
+   WATER
+========================================================= */
+
+.water {
+    position: absolute;
+
+    bottom: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 0%;
+
+    background:
+        linear-gradient(
+            to bottom,
+            #64d8ff,
+            #2196f3
+        );
+
+    transition:
+        height .65s
+        cubic-bezier(.2,.8,.2,1);
+
+    overflow: hidden;
+}
+
+
+/* water waves */
+
+.water::before {
+    content: "";
+
+    position: absolute;
+
+    top: -8px;
+
+    left: -20px;
+
+    width: 120%;
+
+    height: 18px;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(255,255,255,.55) 0 40%,
+            transparent 42%
+        );
+
+    background-size:
+        35px 14px;
+
+    animation:
+        wave 2s linear infinite;
+}
+
+@keyframes wave {
+
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(35px);
+    }
+}
+
+
+/* =========================================================
+   WATER MARKINGS
+========================================================= */
+
+.markings {
+    position: absolute;
+
+    right: 8px;
+
+    top: 15px;
+
+    bottom: 15px;
+
+    width: 35px;
+
+    pointer-events: none;
+
+    z-index: 10;
+}
+
+.marking {
+    position: absolute;
+
+    right: 0;
+
+    width: 24px;
+
+    height: 1px;
+
+    background: rgba(52,73,94,.45);
+
+    font-size: .7rem;
+
+    color: #546e7a;
+
+    padding-right: 27px;
+
+    white-space: nowrap;
+}
+
+.marking:nth-child(1) {
+    bottom: 0;
+}
+
+.marking:nth-child(2) {
+    bottom: 20%;
+}
+
+.marking:nth-child(3) {
+    bottom: 40%;
+}
+
+.marking:nth-child(4) {
+    bottom: 60%;
+}
+
+.marking:nth-child(5) {
+    bottom: 80%;
+}
+
+.marking:nth-child(6) {
+    bottom: 100%;
+}
+
+
+/* =========================================================
+   CURRENT AMOUNT
+========================================================= */
+
+.amount {
+    margin-top: 13px;
+
+    font-size: 1.45rem;
+
+    font-weight: bold;
+
+    color: #1976a8;
+}
+
+.amount small {
+    font-size: .8rem;
+
+    color: #78909c;
+}
+
+
+/* =========================================================
+   JUG BUTTONS
+========================================================= */
+
+.jug-buttons {
+    display: flex;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    margin-top: 12px;
+}
+
+.jug-buttons button {
+    padding:
+        8px 13px;
+
+    font-size: .8rem;
+}
+
+.fill-btn {
+    background: #2196f3;
+}
+
+.empty-btn {
+    background: #e74c3c;
+}
+
+
+/* =========================================================
+   POUR ARROW
+========================================================= */
+
+.pour-area {
+    position: absolute;
+
+    left: 50%;
+
+    bottom: 105px;
+
+    transform:
+        translateX(-50%);
+
+    text-align: center;
+
+    color: #78909c;
+
+    font-size: .85rem;
+
+    pointer-events: none;
+}
+
+.pour-arrow {
+    font-size: 2.3rem;
+
+    color: #2196f3;
+}
+
+
+/* =========================================================
+   DRAG INSTRUCTION
+========================================================= */
+
+.drag-info {
+    text-align: center;
+
+    padding: 12px;
+
+    background: #f2faff;
+
+    border-radius: 9px;
+
+    color: #507083;
+
+    margin-top: 10px;
+}
+
+
+/* =========================================================
+   DRAGGING WATER
+========================================================= */
+
+.water-transfer {
+    position: fixed;
+
+    z-index: 999999;
+
+    pointer-events: none;
+
+    display: none;
+
+    width: 55px;
+
+    height: 55px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 30% 25%,
+            #ffffff,
+            #64d8ff 35%,
+            #2196f3
+        );
+
+    box-shadow:
+        0 8px 20px
+        rgba(33,150,243,.4);
+}
+
+
+/* =========================================================
+   TARGET HIGHLIGHT
+========================================================= */
+
+.jug.target {
+
+    box-shadow:
+        0 0 0 6px
+        rgba(33,150,243,.3),
+
+        0 0 30px
+        rgba(33,150,243,.45);
+}
+
+
+/* =========================================================
+   HINT BOX
+========================================================= */
+
+#hintBox {
+    display: none;
+
+    margin-top: 18px;
+
+    padding: 17px;
+
+    background: #fff8e7;
+
+    border-left:
+        5px solid #f39c12;
+
+    border-radius: 9px;
+
+    line-height: 1.6;
+
+    color: #6d5728;
+}
+
+
+/* =========================================================
+   RESULT
+========================================================= */
+
+#result {
+
+    display: none;
+
+    margin-top: 18px;
+
+    padding: 20px;
+
+    border-radius: 12px;
+
+    text-align: center;
+
+    line-height: 1.6;
+}
+
+.success {
+
+    display: block !important;
+
+    background: #eafaf1;
+
+    border:
+        2px solid #27ae60;
+
+    color: #196f3d;
+}
+
+.failure {
+
+    display: block !important;
+
+    background: #fdedec;
+
+    border:
+        2px solid #e74c3c;
+
+    color: #922b21;
+}
+
+
+/* =========================================================
+   SOLUTION
+========================================================= */
+
+#solution {
+
+    display: none;
+
+    margin-top: 18px;
+
+    background: white;
+
+    padding: 22px;
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 6px 20px rgba(0,0,0,.08);
+
+    line-height: 1.6;
+}
+
+.solution-step {
+
+    background: #f5f8fa;
+
+    padding: 13px;
+
+    margin: 10px 0;
+
+    border-radius: 8px;
+}
+
+
+/* =========================================================
+   WIN EFFECT
+========================================================= */
+
+.win {
+
+    animation:
+        winPulse .7s ease-in-out 3;
+}
+
+@keyframes winPulse {
+
+    0%,100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.03);
+    }
+}
+
+
+/* =========================================================
+   CONFETTI
+========================================================= */
+
+.confetti {
+
+    position: fixed;
+
+    width: 9px;
+
+    height: 15px;
+
+    top: -20px;
+
+    z-index: 1000000;
+
+    animation:
+        fall 2.5s linear forwards;
+}
+
+@keyframes fall {
+
+    to {
+
+        transform:
+            translateY(110vh)
+            rotate(720deg);
+
+        opacity: 0;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:750px) {
+
+    header h1 {
+        font-size: 1.8rem;
+    }
+
+    .jugs-area {
+
+        gap: 20px;
+
+        min-height: 390px;
+
+    }
+
+    .jug-wrapper {
+
+        width: 160px;
+    }
+
+    .jug {
+
+        width: 135px;
+
+        height: 240px;
+    }
+
+    .handle {
+
+        right: -45px;
+
+        height: 130px;
+
+        width: 55px;
+    }
+
+    .pour-area {
+        display: none;
+    }
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header>
+
+    <h1>
+        💧 The Water Jug Puzzle
+    </h1>
+
+    <p>
+        Measure exactly 4 liters using the two jugs.
+    </p>
+
+</header>
+
+
+<!-- =====================================================
+     INSTRUCTIONS
+===================================================== -->
+
+<div class="instructions">
+
+    <h2>
+        🧠 Your Challenge
+    </h2>
+
+    <p>
+        You have two empty jugs:
+        a <strong>5-liter jug</strong>
+        and a <strong>3-liter jug</strong>.
+    </p>
+
+    <p>
+        You have an unlimited supply of water.
+        Fill, empty, and pour between the jugs
+        however you like.
+    </p>
+
+    <div class="goal">
+
+        🎯 Goal:
+        Get exactly <strong>4 liters</strong>
+        into the 5-liter jug.
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     CONTROLS
+===================================================== -->
+
+<div class="controls">
+
+    <button
+        class="reset"
+        onclick="resetGame()">
+
+        🔄 Reset Puzzle
+
+    </button>
+
+
+    <button
+        class="hint"
+        onclick="showHint()">
+
+        💡 Hint
+
+    </button>
+
+
+    <button
+        class="check"
+        onclick="checkGoal()">
+
+        ✅ Check Goal
+
+    </button>
+
+
+    <button
+        class="solution"
+        onclick="showSolution()">
+
+        🧠 Show Solution
+
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+     STATS
+===================================================== -->
+
+<div class="stats">
+
+    <div class="stat">
+
+        🔢 Moves
+
+        <span id="moveCount">
+            0
+        </span>
+
+    </div>
+
+
+    <div class="stat">
+
+        💧 5L Jug
+
+        <span id="fiveStat">
+            0 / 5 L
+        </span>
+
+    </div>
+
+
+    <div class="stat">
+
+        💧 3L Jug
+
+        <span id="threeStat">
+            0 / 3 L
+        </span>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     PUZZLE
+===================================================== -->
+
+<div class="puzzle-area">
+
+    <div class="puzzle-title">
+
+        <h2>
+            💧 Water Station
+        </h2>
+
+        <p>
+            Drag one jug toward the other to pour water.
+        </p>
+
+    </div>
+
+
+    <div
+        class="jugs-area"
+        id="jugsArea">
+
+
+        <!-- =================================================
+             5 LITER JUG
+        ================================================== -->
+
+        <div
+            class="jug-wrapper"
+            id="fiveWrapper">
+
+            <div class="jug-label">
+
+                🪣 5 Liter Jug
+
+            </div>
+
+
+            <div
+                class="jug"
+                id="fiveJug"
+                data-capacity="5">
+
+                <div
+                    class="handle">
+                </div>
+
+
+                <div
+                    class="water"
+                    id="fiveWater">
+                </div>
+
+
+                <div class="markings">
+
+                    <div class="marking">
+                        0L
+                    </div>
+
+                    <div class="marking">
+                        1L
+                    </div>
+
+                    <div class="marking">
+                        2L
+                    </div>
+
+                    <div class="marking">
+                        3L
+                    </div>
+
+                    <div class="marking">
+                        4L
+                    </div>
+
+                    <div class="marking">
+                        5L
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="amount"
+                id="fiveAmount">
+
+                0 L
+
+                <small>
+                    / 5 L
+                </small>
+
+            </div>
+
+
+            <div class="jug-buttons">
+
+                <button
+                    class="fill-btn"
+                    onclick="fillJug(5)">
+
+                    💧 Fill
+
+                </button>
+
+
+                <button
+                    class="empty-btn"
+                    onclick="emptyJug(5)">
+
+                    🗑️ Empty
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             POUR AREA
+        ================================================== -->
+
+        <div class="pour-area">
+
+            <div>
+                Drag → Pour
+            </div>
+
+            <div class="pour-arrow">
+                ↔
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             3 LITER JUG
+        ================================================== -->
+
+        <div
+            class="jug-wrapper"
+            id="threeWrapper">
+
+            <div class="jug-label">
+
+                🪣 3 Liter Jug
+
+            </div>
+
+
+            <div
+                class="jug"
+                id="threeJug"
+                data-capacity="3">
+
+                <div
+                    class="handle">
+                </div>
+
+
+                <div
+                    class="water"
+                    id="threeWater">
+                </div>
+
+
+                <div class="markings">
+
+                    <div class="marking">
+                        0L
+                    </div>
+
+                    <div class="marking">
+                        1L
+                    </div>
+
+                    <div class="marking">
+                        2L
+                    </div>
+
+                    <div class="marking">
+                        3L
+                    </div>
+
+                    <div class="marking">
+                        4L
+                    </div>
+
+                    <div class="marking">
+                        5L
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="amount"
+                id="threeAmount">
+
+                0 L
+
+                <small>
+                    / 3 L
+                </small>
+
+            </div>
+
+
+            <div class="jug-buttons">
+
+                <button
+                    class="fill-btn"
+                    onclick="fillJug(3)">
+
+                    💧 Fill
+
+                </button>
+
+
+                <button
+                    class="empty-btn"
+                    onclick="emptyJug(3)">
+
+                    🗑️ Empty
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="drag-info">
+
+        🖱️ <strong>Drag a jug onto the other jug</strong>
+        to pour water.
+
+        <br>
+
+        You can also use the
+        <strong>Fill</strong> and
+        <strong>Empty</strong> buttons.
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     DRAG WATER INDICATOR
+===================================================== -->
+
+<div
+    id="waterTransfer"
+    class="water-transfer">
+</div>
+
+
+<!-- =====================================================
+     HINT
+===================================================== -->
+
+<div id="hintBox"></div>
+
+
+<!-- =====================================================
+     RESULT
+===================================================== -->
+
+<div id="result"></div>
+
+
+<!-- =====================================================
+     SOLUTION
+===================================================== -->
+
+<div id="solution">
+
+    <h2>
+        🧠 Solution
+    </h2>
+
+
+    <div class="solution-step">
+
+        <strong>
+            Step 1
+        </strong>
+
+        <p>
+            Fill the 5-liter jug completely.
+        </p>
+
+        <p>
+            State:
+            <strong>
+                (5L, 0L)
+            </strong>
+        </p>
+
+    </div>
+
+
+    <div class="solution-step">
+
+        <strong>
+            Step 2
+        </strong>
+
+        <p>
+            Pour the 5L jug into the 3L jug.
+        </p>
+
+        <p>
+            State:
+            <strong>
+                (2L, 3L)
+            </strong>
+        </p>
+
+    </div>
+
+
+    <div class="solution-step">
+
+        <strong>
+            Step 3
+        </strong>
+
+        <p>
+            Empty the 3-liter jug.
+        </p>
+
+        <p>
+            State:
+            <strong>
+                (2L, 0L)
+            </strong>
+        </p>
+
+    </div>
+
+
+    <div class="solution-step">
+
+        <strong>
+            Step 4
+        </strong>
+
+        <p>
+            Pour the 2 liters from the 5L jug
+            into the 3L jug.
+        </p>
+
+        <p>
+            State:
+            <strong>
+                (0L, 2L)
+            </strong>
+        </p>
+
+    </div>
+
+
+    <div class="solution-step">
+
+        <strong>
+            Step 5
+        </strong>
+
+        <p>
+            Fill the 5-liter jug again.
+        </p>
+
+        <p>
+            State:
+            <strong>
+                (5L, 2L)
+            </strong>
+        </p>
+
+    </div>
+
+
+    <div class="solution-step">
+
+        <strong>
+            Step 6
+        </strong>
+
+        <p>
+            Pour from the 5L jug into the 3L jug
+            until the 3L jug is full.
+        </p>
+
+        <p>
+            Exactly <strong>1 liter</strong>
+            leaves the 5L jug.
+        </p>
+
+        <p>
+            State:
+            <strong>
+                (4L, 3L)
+            </strong>
+        </p>
+
+    </div>
+
+
+    <div class="goal">
+
+        🎉 You now have exactly
+        <strong>4 liters</strong>
+        in the 5-liter jug!
+
+    </div>
+
+</div>
+
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   GAME STATE
+========================================================= */
+
+let fiveLiters = 0;
+
+let threeLiters = 0;
+
+let moves = 0;
+
+let gameWon = false;
+
+let hintLevel = 0;
+
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const fiveWater =
+    document.getElementById(
+        "fiveWater"
+    );
+
+const threeWater =
+    document.getElementById(
+        "threeWater"
+    );
+
+const fiveAmount =
+    document.getElementById(
+        "fiveAmount"
+    );
+
+const threeAmount =
+    document.getElementById(
+        "threeAmount"
+    );
+
+const fiveJug =
+    document.getElementById(
+        "fiveJug"
+    );
+
+const threeJug =
+    document.getElementById(
+        "threeJug"
+    );
+
+const waterTransfer =
+    document.getElementById(
+        "waterTransfer"
+    );
+
+
+/* =========================================================
+   UPDATE DISPLAY
+========================================================= */
+
+function updateDisplay() {
+
+    fiveWater.style.height =
+        (fiveLiters / 5 * 100) + "%";
+
+
+    threeWater.style.height =
+        (threeLiters / 3 * 100) + "%";
+
+
+    fiveAmount.innerHTML =
+        `${fiveLiters} L <small>/ 5 L</small>`;
+
+
+    threeAmount.innerHTML =
+        `${threeLiters} L <small>/ 3 L</small>`;
+
+
+    document.getElementById(
+        "fiveStat"
+    ).innerText =
+        `${fiveLiters} / 5 L`;
+
+
+    document.getElementById(
+        "threeStat"
+    ).innerText =
+        `${threeLiters} / 3 L`;
+
+
+    document.getElementById(
+        "moveCount"
+    ).innerText =
+        moves;
+
+}
+
+
+/* =========================================================
+   ADD MOVE
+========================================================= */
+
+function addMove() {
+
+    moves++;
+
+    updateDisplay();
+
+}
+
+
+/* =========================================================
+   FILL JUG
+========================================================= */
+
+function fillJug(
+    capacity
+) {
+
+    if (gameWon) return;
+
+
+    if (capacity === 5) {
+
+        if (fiveLiters === 5) {
+
+            showTemporaryMessage(
+                "⚠️ The 5L jug is already full."
+            );
+
+            return;
+
+        }
+
+        fiveLiters = 5;
+
+    }
+
+
+    else {
+
+        if (threeLiters === 3) {
+
+            showTemporaryMessage(
+                "⚠️ The 3L jug is already full."
+            );
+
+            return;
+
+        }
+
+        threeLiters = 3;
+
+    }
+
+
+    addMove();
+
+    checkGoalAutomatically();
+
+}
+
+
+/* =========================================================
+   EMPTY JUG
+========================================================= */
+
+function emptyJug(
+    capacity
+) {
+
+    if (gameWon) return;
+
+
+    if (capacity === 5) {
+
+        if (fiveLiters === 0) {
+
+            showTemporaryMessage(
+                "⚠️ The 5L jug is already empty."
+            );
+
+            return;
+
+        }
+
+        fiveLiters = 0;
+
+    }
+
+
+    else {
+
+        if (threeLiters === 0) {
+
+            showTemporaryMessage(
+                "⚠️ The 3L jug is already empty."
+            );
+
+            return;
+
+        }
+
+        threeLiters = 0;
+
+    }
+
+
+    addMove();
+
+}
+
+
+/* =========================================================
+   POUR 5 → 3
+========================================================= */
+
+function pour5to3() {
+
+    if (gameWon) return;
+
+
+    if (
+        fiveLiters === 0
+    ) {
+
+        showTemporaryMessage(
+            "⚠️ The 5L jug is empty."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        threeLiters === 3
+    ) {
+
+        showTemporaryMessage(
+            "⚠️ The 3L jug is already full."
+        );
+
+        return;
+
+    }
+
+
+    const space =
+        3 - threeLiters;
+
+
+    const amount =
+        Math.min(
+            fiveLiters,
+            space
+        );
+
+
+    fiveLiters -= amount;
+
+    threeLiters += amount;
+
+
+    addMove();
+
+    checkGoalAutomatically();
+
+}
+
+
+/* =========================================================
+   POUR 3 → 5
+========================================================= */
+
+function pour3to5() {
+
+    if (gameWon) return;
+
+
+    if (
+        threeLiters === 0
+    ) {
+
+        showTemporaryMessage(
+            "⚠️ The 3L jug is empty."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        fiveLiters === 5
+    ) {
+
+        showTemporaryMessage(
+            "⚠️ The 5L jug is already full."
+        );
+
+        return;
+
+    }
+
+
+    const space =
+        5 - fiveLiters;
+
+
+    const amount =
+        Math.min(
+            threeLiters,
+            space
+        );
+
+
+    threeLiters -= amount;
+
+    fiveLiters += amount;
+
+
+    addMove();
+
+    checkGoalAutomatically();
+
+}
+
+
+/* =========================================================
+   AUTOMATIC GOAL CHECK
+========================================================= */
+
+function checkGoalAutomatically() {
+
+    updateDisplay();
+
+
+    if (
+        fiveLiters === 4
+    ) {
+
+        gameWon = true;
+
+        showSuccess();
+
+    }
+
+}
+
+
+/* =========================================================
+   CHECK GOAL BUTTON
+========================================================= */
+
+function checkGoal() {
+
+    if (
+        fiveLiters === 4
+    ) {
+
+        gameWon = true;
+
+        showSuccess();
+
+    }
+
+    else {
+
+        showTemporaryMessage(
+
+            `❌ Not yet!
+
+            <br><br>
+
+            The 5L jug currently contains
+            <strong>${fiveLiters} liters</strong>.
+
+            <br>
+
+            You need exactly
+            <strong>4 liters</strong>.`
+
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   TEMP MESSAGE
+========================================================= */
+
+function showTemporaryMessage(
+    message
+) {
+
+    const result =
+        document.getElementById(
+            "result"
+        );
+
+
+    result.className =
+        "failure";
+
+
+    result.innerHTML =
+        message;
+
+
+    result.style.display =
+        "block";
+
+
+    setTimeout(
+        function() {
+
+            if (!gameWon) {
+
+                result.style.display =
+                    "none";
+
+            }
+
+        },
+        2500
+    );
+
+}
+
+
+/* =========================================================
+   SUCCESS
+========================================================= */
+
+function showSuccess() {
+
+    const result =
+        document.getElementById(
+            "result"
+        );
+
+
+    result.className =
+        "success";
+
+
+    result.innerHTML = `
+
+        🎉 <strong>Congratulations!</strong>
+
+        <br><br>
+
+        You successfully measured
+        <strong>exactly 4 liters</strong>
+        in the 5-liter jug!
+
+        <br><br>
+
+        💧 5L Jug:
+        <strong>4 L</strong>
+
+        <br>
+
+        💧 3L Jug:
+        <strong>${threeLiters} L</strong>
+
+        <br><br>
+
+        🔢 Moves used:
+        <strong>${moves}</strong>
+
+    `;
+
+
+    result.style.display =
+        "block";
+
+
+    document.getElementById(
+        "jugsArea"
+    ).classList.add(
+        "win"
+    );
+
+
+    document.getElementById(
+        "solution"
+    ).style.display =
+        "block";
+
+
+    createConfetti();
+
+}
+
+
+/* =========================================================
+   HINT
+========================================================= */
+
+function showHint() {
+
+    const hintBox =
+        document.getElementById(
+            "hintBox"
+        );
+
+
+    hintLevel++;
+
+
+    if (
+        hintLevel === 1
+    ) {
+
+        hintBox.innerHTML = `
+
+            💡 <strong>Hint 1:</strong>
+
+            Start by filling the
+            <strong>5-liter jug</strong>.
+
+        `;
+
+    }
+
+
+    else if (
+        hintLevel === 2
+    ) {
+
+        hintBox.innerHTML = `
+
+            💡 <strong>Hint 2:</strong>
+
+            Pour the 5L jug into the
+            3L jug.
+
+            <br><br>
+
+            You should get:
+
+            <strong>
+                2L in the 5L jug
+                and 3L in the 3L jug.
+            </strong>
+
+        `;
+
+    }
+
+
+    else if (
+        hintLevel === 3
+    ) {
+
+        hintBox.innerHTML = `
+
+            💡 <strong>Hint 3:</strong>
+
+            Eventually you need to create
+            a situation where the 3L jug
+            contains exactly 2L.
+
+            Then fill the 5L jug and pour
+            into the 3L jug.
+
+        `;
+
+    }
+
+
+    else {
+
+        hintBox.innerHTML = `
+
+            💡 <strong>Final Hint:</strong>
+
+            The key state is:
+
+            <br><br>
+
+            <strong>
+                5L = 5L
+                &nbsp;&nbsp;|
+                &nbsp;&nbsp;
+                3L = 2L
+            </strong>
+
+            <br><br>
+
+            Pour the 5L jug into the 3L jug.
+
+            Since the 3L jug only has
+            1 liter of space,
+            exactly 1 liter leaves the 5L jug.
+
+            <br><br>
+
+            🎯 Result:
+
+            <strong>
+                5L = 4L
+            </strong>
+
+        `;
+
+    }
+
+
+    hintBox.style.display =
+        "block";
+
+}
+
+
+/* =========================================================
+   SOLUTION
+========================================================= */
+
+function showSolution() {
+
+    document.getElementById(
+        "solution"
+    ).style.display =
+        "block";
+
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+function resetGame() {
+
+    fiveLiters = 0;
+
+    threeLiters = 0;
+
+    moves = 0;
+
+    gameWon = false;
+
+    hintLevel = 0;
+
+
+    updateDisplay();
+
+
+    document.getElementById(
+        "result"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "hintBox"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "solution"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "jugsArea"
+    ).classList.remove(
+        "win"
+    );
+
+}
+
+
+/* =========================================================
+   DRAG & POUR SYSTEM
+========================================================= */
+
+let draggingJug = null;
+
+let dragStartX = 0;
+
+let dragStartY = 0;
+
+let isDragging = false;
+
+
+/*
+   Start dragging 5L jug
+*/
+
+fiveJug.addEventListener(
+    "pointerdown",
+    function(e) {
+
+        startJugDrag(
+            fiveJug,
+            e
+        );
+
+    }
+);
+
+
+/*
+   Start dragging 3L jug
+*/
+
+threeJug.addEventListener(
+    "pointerdown",
+    function(e) {
+
+        startJugDrag(
+            threeJug,
+            e
+        );
+
+    }
+);
+
+
+/* =========================================================
+   START JUG DRAG
+========================================================= */
+
+function startJugDrag(
+    jug,
+    e
+) {
+
+    if (gameWon) return;
+
+
+    e.preventDefault();
+
+
+    draggingJug =
+        jug;
+
+
+    dragStartX =
+        e.clientX;
+
+
+    dragStartY =
+        e.clientY;
+
+
+    isDragging =
+        false;
+
+
+    jug.setPointerCapture(
+        e.pointerId
+    );
+
+}
+
+
+/* =========================================================
+   DRAG MOVE
+========================================================= */
+
+document.addEventListener(
+    "pointermove",
+    function(e) {
+
+        if (
+            !draggingJug
+        ) {
+
+            return;
+
+        }
+
+
+        const dx =
+            e.clientX -
+            dragStartX;
+
+
+        const dy =
+            e.clientY -
+            dragStartY;
+
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+
+        if (
+            !isDragging &&
+            distance < 7
+        ) {
+
+            return;
+
+        }
+
+
+        isDragging =
+            true;
+
+
+        /*
+           Show floating water
+           indicator.
+        */
+
+        waterTransfer.style.display =
+            "block";
+
+
+        waterTransfer.style.left =
+            (e.clientX - 27) +
+            "px";
+
+
+        waterTransfer.style.top =
+            (e.clientY - 27) +
+            "px";
+
+
+        /*
+           Highlight opposite jug.
+        */
+
+        fiveJug.classList.remove(
+            "target"
+        );
+
+        threeJug.classList.remove(
+            "target"
+        );
+
+
+        const target =
+            getJugAtPoint(
+                e.clientX,
+                e.clientY
+            );
+
+
+        if (
+            target &&
+            target !== draggingJug
+        ) {
+
+            target.classList.add(
+                "target"
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   DRAG END
+========================================================= */
+
+document.addEventListener(
+    "pointerup",
+    function(e) {
+
+        if (
+            !draggingJug
+        ) {
+
+            return;
+
+        }
+
+
+        const source =
+            draggingJug;
+
+
+        const wasDragging =
+            isDragging;
+
+
+        draggingJug =
+            null;
+
+
+        isDragging =
+            false;
+
+
+        waterTransfer.style.display =
+            "none";
+
+
+        fiveJug.classList.remove(
+            "target"
+        );
+
+        threeJug.classList.remove(
+            "target"
+        );
+
+
+        if (!wasDragging) {
+
+            return;
+
+        }
+
+
+        const target =
+            getJugAtPoint(
+                e.clientX,
+                e.clientY
+            );
+
+
+        if (
+            !target ||
+            target === source
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+           Determine pouring direction.
+        */
+
+        if (
+            source === fiveJug &&
+            target === threeJug
+        ) {
+
+            pour5to3();
+
+        }
+
+        else if (
+            source === threeJug &&
+            target === fiveJug
+        ) {
+
+            pour3to5();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   FIND JUG UNDER POINTER
+========================================================= */
+
+function getJugAtPoint(
+    x,
+    y
+) {
+
+    const fiveRect =
+        fiveJug.getBoundingClientRect();
+
+
+    const threeRect =
+        threeJug.getBoundingClientRect();
+
+
+    if (
+        x >= fiveRect.left &&
+        x <= fiveRect.right &&
+        y >= fiveRect.top &&
+        y <= fiveRect.bottom
+    ) {
+
+        return fiveJug;
+
+    }
+
+
+    if (
+        x >= threeRect.left &&
+        x <= threeRect.right &&
+        y >= threeRect.top &&
+        y <= threeRect.bottom
+    ) {
+
+        return threeJug;
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =========================================================
+   CONFETTI
+========================================================= */
+
+function createConfetti() {
+
+    const colors = [
+
+        "#2196f3",
+
+        "#00bcd4",
+
+        "#2ecc71",
+
+        "#f1c40f",
+
+        "#e74c3c",
+
+        "#9b59b6"
+
+    ];
+
+
+    for (
+        let i = 0;
+        i < 80;
+        i++
+    ) {
+
+        const piece =
+            document.createElement(
+                "div"
+            );
+
+
+        piece.className =
+            "confetti";
+
+
+        piece.style.left =
+            Math.random() *
+            100 +
+            "vw";
+
+
+        piece.style.background =
+            colors[
+                Math.floor(
+                    Math.random() *
+                    colors.length
+                )
+            ];
+
+
+        piece.style.animationDelay =
+            Math.random() *
+            .8 +
+            "s";
+
+
+        document.body.appendChild(
+            piece
+        );
+
+
+        setTimeout(
+            function() {
+
+                piece.remove();
+
+            },
+            3500
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+window.addEventListener(
+    "load",
+    function() {
+
+        resetGame();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
